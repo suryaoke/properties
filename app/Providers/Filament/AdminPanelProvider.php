@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         // Ambil data dari tabel 'about'
-        $about = About::first();
+        // $about = About::first();
         $brandName = $about?->title ?? 'Properti';
         $brandLogo = $about?->photo ?? null;
 
@@ -35,15 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-
-            // ✅ FIX: auth agar route POST login tersedia
-            ->auth([
-                'guard' => 'web',
-                'pages' => [
-                    'login' => \Filament\Pages\Auth\Login::class,
-                ],
-            ])
-
+            ->login()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -66,13 +58,21 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
 
-            // Brand Logo + Name
+            // SOLUSI 1: Kombinasi logo dan nama dalam HTML
             ->brandName(new HtmlString('
                 <div style="display: flex; align-items: center; gap: 8px;">
                     ' . ($brandLogo ? '<img src="' . asset('storage/' . $brandLogo) . '" alt="Logo" style="height: 32px; width: auto;">' : '') . '
                     <span>' . $brandName . '</span>
                 </div>
             '))
+
+            // SOLUSI 2: Atau gunakan brandLogo saja dengan HTML yang mengandung keduanya
+            // ->brandLogo(fn () => new HtmlString('
+            //     <div style="display: flex; align-items: center; gap: 8px;">
+            //         ' . ($brandLogo ? '<img src="' . asset('storage/' . $brandLogo) . '" alt="Logo" style="height: 32px; width: auto;">' : '') . '
+            //         <span style="font-weight: 600; color: rgb(55 65 81);">' . $brandName . '</span>
+            //     </div>
+            // '))
 
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([])
