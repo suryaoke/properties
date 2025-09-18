@@ -62,6 +62,20 @@ class PropertyResource extends Resource
                         Forms\Components\Textarea::make('about')
                             ->label('Deskripsi')
                             ->required(),
+                         Forms\Components\Select::make('status_listing')
+                                    ->label('Status Listing')
+                                    ->options([
+                                        'For Sale' => 'For Sale',
+                                        'For Rent' => 'For Rent',
+                                    ])
+                                    ->required(),
+                                Forms\Components\Select::make('status_active')
+                                    ->label('Status Aktif')
+                                    ->options([
+                                        'Active' => 'Active',
+                                        'Inactive' => 'Inactive',
+                                    ])
+                                    ->required(),
                         Forms\Components\FileUpload::make('thumbnail')
                             ->label('Thumbnail')
                             ->required()
