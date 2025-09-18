@@ -1,8 +1,8 @@
  <nav class="relative w-full flex items-center justify-center px-[75px]">
     <div class="fixed top-0 flex items-center justify-between w-full max-w-[1130px] rounded-3xl p-4 bg-white mt-[30px] z-30">
         <a href="{{ route('front.index') }}" class="flex items-center gap-3 shrink-0 group">
-            <img src="{{Storage::url($about->photo) }}" alt="logo" class="w-10 h-10 rounded-lg">
-            <p  style="font-size: 25px;" class="hover:font-bold group-hover:font-bold transition-all duration-300 text-gray-800">{{ $about->title }}</p>
+            <img src="{{Storage::url($about->photo ?? '') }}" alt="logo" class="w-10 h-10 rounded-lg">
+            <p  style="font-size: 25px;" class="hover:font-bold group-hover:font-bold transition-all duration-300 text-gray-800">{{ $about->title ?? ''}}</p>
         </a>
         <ul class="flex items-center gap-[30px]">
             <li class="group active">
