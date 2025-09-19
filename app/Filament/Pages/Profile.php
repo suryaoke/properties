@@ -34,10 +34,12 @@ class Profile extends Page implements Forms\Contracts\HasForms
                 ->required(),
 
             Forms\Components\FileUpload::make('photo')
-                ->label('Gambar')
-                ->image()
-                ->directory('users')   // sama dengan UserResource
-                ->maxSize(1024),
+                    ->label('Foto Profil')
+                    ->image()
+                    ->disk('direct_storage') // pakai disk yang Anda definisikan
+                    ->directory('users')
+                    ->maxSize(1024)
+                    ->visibility('public'),
 
             Forms\Components\TextInput::make('phone')
                 ->label('No. HP'),
