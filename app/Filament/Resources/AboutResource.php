@@ -49,7 +49,8 @@ class AboutResource extends Resource
                             ->label('Gambar')
                             ->image()
                             ->nullable()
-                            ->directory('abouts')
+                            ->disk('direct_storage') // Menggunakan disk direct_storage
+                            ->directory('abouts') // Folder abouts di storage/abouts/
                             ->maxSize(1024),
                     ])->columns(2),
             ]);
@@ -59,7 +60,10 @@ class AboutResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('photo')->label('Gambar')->rounded(),
+                Tables\Columns\ImageColumn::make('photo')
+                    ->label('Gambar')
+                    ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
+                    ->rounded(),
                 Tables\Columns\TextColumn::make('title')->label('Judul')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('email')->label('Email')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('phone')->label('No. HP')->searchable()->sortable(),
@@ -97,7 +101,7 @@ class AboutResource extends Resource
         ];
     }
 
-      public static function shouldRegisterNavigation(): bool
+    public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->can('view_any_about');
     }
