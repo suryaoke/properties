@@ -59,6 +59,14 @@ return [
             'throw' => false,
             'report' => false,
         ],
+         'direct_storage' => [
+            'driver' => 'local',
+            'root' => base_path('storage'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
 
     ],
 
