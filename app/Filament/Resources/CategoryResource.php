@@ -37,13 +37,10 @@ class CategoryResource extends Resource
                             ->relationship('propertyType', 'name')
                             ->required(),
                         Forms\Components\FileUpload::make('photo')
-                            // ->label('Gambar')
-                            // ->image()
-                            // ->required()
-                            // ->directory('categories')
-                              ->disk('public')  // Menggunakan disk public
-                            ->directory('images')
-                            ->visibility('public')
+                            ->label('Gambar')
+                            ->image()
+                            ->required()
+                            ->directory('categories')
                             ->maxSize(1024),
 
                     ])->columns(2),
