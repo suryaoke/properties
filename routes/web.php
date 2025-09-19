@@ -24,4 +24,15 @@ Route::get('/dashboard', function () {
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
 
+
+// Tambahkan di routes/web.php
+Route::get('/storage/abouts/{filename}', function ($filename) {
+    $path = storage_path('abouts/' . $filename);
+    
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    
+    return response()->file($path);
+})->where('filename', '.*');
 require __DIR__.'/auth.php';
