@@ -32,13 +32,13 @@ class FacilityResource extends Resource
                             ->label('Nama')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\FileUpload::make('photo')
+                      Forms\Components\FileUpload::make('photo')
                             ->label('Gambar')
                             ->image()
                             ->required()
-                            ->directory('categories')
+                            ->disk('direct_storage') // Menggunakan disk direct_storage
+                            ->directory('fasilitas') // Folder fasilitas di storage/fasilitas/
                             ->maxSize(1024),
-
                     ])->columns(2),
             ]);
     }
@@ -48,7 +48,10 @@ class FacilityResource extends Resource
         return $table
              ->columns([
 
-                Tables\Columns\ImageColumn::make('photo')->label('Gambar')->rounded(),
+                Tables\Columns\ImageColumn::make('photo')
+                    ->label('Gambar')
+                    ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
+                    ->rounded(),
                 Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
             ])
             ->filters([

@@ -26,10 +26,78 @@ Route::get('/dashboard', function () {
 
 
 
-// Di routes/web.php, ganti route yang ada dengan:
 Route::get('/storage/abouts/{filename}', function ($filename) {
     // Path yang benar sesuai dengan lokasi file Anda
     $path = base_path('storage/abouts/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    // Set header yang tepat untuk SVG
+    $mimeType = mime_content_type($path);
+
+    return response()->file($path, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000', // Cache 1 tahun
+    ]);
+})->where('filename', '.*');
+
+Route::get('/storage/categorie/{filename}', function ($filename) {
+    // Path yang benar sesuai dengan lokasi file Anda
+    $path = base_path('storage/categorie/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    // Set header yang tepat untuk SVG
+    $mimeType = mime_content_type($path);
+
+    return response()->file($path, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000', // Cache 1 tahun
+    ]);
+})->where('filename', '.*');
+
+Route::get('/storage/fasilitas/{filename}', function ($filename) {
+    // Path yang benar sesuai dengan lokasi file Anda
+    $path = base_path('storage/fasilitas/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    // Set header yang tepat untuk SVG
+    $mimeType = mime_content_type($path);
+
+    return response()->file($path, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000', // Cache 1 tahun
+    ]);
+})->where('filename', '.*');
+
+Route::get('/storage/properties/{filename}', function ($filename) {
+    // Path yang benar sesuai dengan lokasi file Anda
+    $path = base_path('storage/properties/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    // Set header yang tepat untuk SVG
+    $mimeType = mime_content_type($path);
+
+    return response()->file($path, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000', // Cache 1 tahun
+    ]);
+})->where('filename', '.*');
+
+
+Route::get('/storage/users/{filename}', function ($filename) {
+    // Path yang benar sesuai dengan lokasi file Anda
+    $path = base_path('storage/users/' . $filename);
 
     if (!file_exists($path)) {
         abort(404);

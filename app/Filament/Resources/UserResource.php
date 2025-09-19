@@ -57,6 +57,7 @@ class UserResource extends Resource
                             ->label('Gambar')
                             ->image()
                             ->required()
+                             ->disk('direct_storage')
                             ->directory('users')
                             ->maxSize(1024),
 
@@ -69,7 +70,10 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('photo')->label('Gambar')->rounded(),
+                Tables\Columns\ImageColumn::make('photo')
+                    ->label('Gambar')
+                    ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
+                    ->rounded(),
                 Tables\Columns\TextColumn::make('roles.name')->label('Role')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('email')->label('Email')->searchable()->sortable(),

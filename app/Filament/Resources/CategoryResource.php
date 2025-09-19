@@ -40,9 +40,9 @@ class CategoryResource extends Resource
                             ->label('Gambar')
                             ->image()
                             ->required()
-                            ->directory('categories')
+                            ->disk('direct_storage') // Menggunakan disk direct_storage
+                            ->directory('categorie') // Folder abouts di storage/abouts/
                             ->maxSize(1024),
-
                     ])->columns(2),
             ]);
     }
@@ -52,7 +52,10 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('photo')->label('Gambar')->rounded(),
+                Tables\Columns\ImageColumn::make('photo')
+                        ->label('Gambar')
+                        ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
+                        ->rounded(),
                 Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('propertyType.name')->label('Tipe Properti')->searchable()->sortable(),
 

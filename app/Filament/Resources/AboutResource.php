@@ -48,7 +48,7 @@ class AboutResource extends Resource
                         Forms\Components\FileUpload::make('photo')
                             ->label('Gambar')
                             ->image()
-                            ->nullable()
+                            ->required()
                             ->disk('direct_storage') // Menggunakan disk direct_storage
                             ->directory('abouts') // Folder abouts di storage/abouts/
                             ->maxSize(1024),

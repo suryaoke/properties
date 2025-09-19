@@ -80,7 +80,8 @@ class PropertyResource extends Resource
                             ->label('Thumbnail')
                             ->required()
                             ->image()
-                            ->directory('properties/thumbnails')
+                            ->disk('direct_storage') // Menggunakan disk direct_storage
+                            ->directory('properties')
                             ->maxSize(1024),
                         Forms\Components\Repeater::make('photos')
                             ->label('Foto')
@@ -89,7 +90,8 @@ class PropertyResource extends Resource
                                 Forms\Components\FileUpload::make('photo')
                                     ->label('Foto')
                                     ->image()
-                                    ->directory('properties/photos')
+                                    ->directory('properties')
+                                    ->disk('direct_storage') // Menggunakan disk direct_storage
                                     ->maxSize(2048)
                                     ->required(),
                             ]),
@@ -151,7 +153,10 @@ class PropertyResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('thumbnail')->label('Thumbnail')->rounded(),
+                 Tables\Columns\ImageColumn::make('thumbnail')
+                    ->label('Thumbnail')
+                    ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
+                    ->rounded(),
                 Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('price')->label('Harga')->money('idr', true)->sortable(),
                 Tables\Columns\TextColumn::make('propertyType.name')->label('Tipe Properti')->searchable()->sortable(),
