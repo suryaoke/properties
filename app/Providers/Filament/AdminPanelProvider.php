@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         // Ambil data dari tabel 'about'
-        // $about = About::first();
+        $about = About::first();
         $brandName = $about?->title ?? 'Properti';
         $brandLogo = $about?->photo ?? null;
 
