@@ -26,7 +26,7 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-              ->schema([
+            ->schema([
                 Fieldset::make('Details')
                     ->schema([
                         Forms\Components\TextInput::make('name')
@@ -42,6 +42,21 @@ class UserResource extends Resource
                             ->email()
                             ->required()
                             ->maxLength(255),
+                        Forms\Components\TextInput::make('fb')
+                            ->label('Facebook')
+                            ->nullable()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('twitter')
+                            ->label('Twitter')
+                            ->nullable()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('linkedin')
+                            ->label('Linkedin')
+                            ->nullable()
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('visi')
+                            ->label('Visi')
+                            ->nullable(),
                         Forms\Components\TextInput::make('password')
                             ->helperText('Minimal 8 karakter')
                             ->label('Password')
@@ -57,7 +72,7 @@ class UserResource extends Resource
                             ->label('Gambar')
                             ->image()
                             ->required()
-                             ->disk('direct_storage')
+                            ->disk('direct_storage')
                             ->directory('users')
                             ->maxSize(1024),
 
@@ -78,6 +93,10 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('email')->label('Email')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('phone')->label('No. HP')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('fb')->label('Facebook')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('twitter')->label('Twitter')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('linkedin')->label('Linkedin')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('visi')->label('Visi')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->label('Dibuat Pada')->dateTime('d M Y H:i')->sortable(),
             ])
             ->filters([

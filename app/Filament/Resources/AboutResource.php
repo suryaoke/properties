@@ -27,7 +27,7 @@ class AboutResource extends Resource
                 Fieldset::make('Details')
                     ->schema([
                         Forms\Components\TextInput::make('title')
-                            ->label('Judul')
+                            ->label('Judul Logo')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\Textarea::make('description')
@@ -35,18 +35,37 @@ class AboutResource extends Resource
                             ->required(),
                         Forms\Components\Textarea::make('address')
                             ->label('Alamat')
-                            ->nullable(),
+                            ->required(),
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
                             ->email()
-                            ->nullable()
+                            ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('phone')
                             ->label('No. HP')
-                            ->nullable()
+                            ->required()
                             ->maxLength(20),
+                        Forms\Components\TextInput::make('fb')
+                            ->label('Facebook')
+                            ->nullable()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('twitter')
+                            ->label('Twitter')
+                            ->nullable()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('instagram')
+                            ->label('Instagram')
+                            ->nullable()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('linkedin')
+                            ->label('Linkedin')
+                            ->nullable()
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('deskripsi_agen')
+                            ->label('Deskripsi Agen')
+                            ->nullable(),
                         Forms\Components\FileUpload::make('photo')
-                            ->label('Gambar')
+                            ->label('Gambar Logo')
                             ->image()
                             ->required()
                             ->disk('direct_storage') // Menggunakan disk direct_storage
@@ -61,12 +80,17 @@ class AboutResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('photo')
-                    ->label('Gambar')
+                    ->label('Gambar Logo')
                     ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
                     ->rounded(),
-                Tables\Columns\TextColumn::make('title')->label('Judul')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('title')->label('Judul Logo')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('email')->label('Email')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('phone')->label('No. HP')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('fb')->label('Facebook')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('twitter')->label('Twitter')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('instagram')->label('Instagram')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('linkedin')->label('Linkedin')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('deskripsi_agen')->label('Deskripsi Agen')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('address')->label('Alamat')->searchable()->sortable(),
 
             ])

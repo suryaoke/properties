@@ -26,7 +26,8 @@ class Property extends Model
             'category_id',
             'map',
             'status_listing',
-            'status_active'
+            'status_active',
+            'paragraph'
         ];
     public function setNameAttribute($value)
     {

@@ -13,5 +13,10 @@ class About extends Model
         'email',
         'phone',
         'photo',
+        'fb',
+        'twitter',
+        'instagram',
+        'linkedin',
+        'deskripsi_agen'
     ];
 }

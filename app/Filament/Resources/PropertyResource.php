@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PropertyResource extends Resource
 {
     protected static ?string $model = Property::class;
-    protected static ?string $navigationLabel = 'Properti'; 
+    protected static ?string $navigationLabel = 'Properti';
     protected static ?string $pluralLabel = 'Properti';
     protected static ?string $label = 'Properti';
 
@@ -32,7 +32,7 @@ class PropertyResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-           ->schema([
+            ->schema([
                 Fieldset::make('Details')
                     ->schema([
                         Forms\Components\TextInput::make('name')
@@ -62,13 +62,16 @@ class PropertyResource extends Resource
                         Forms\Components\Textarea::make('about')
                             ->label('Deskripsi')
                             ->required(),
-                         Forms\Components\Select::make('status_listing')
-                                    ->label('Status Listing')
-                                    ->options([
-                                        'For Sale' => 'For Sale',
-                                        'For Rent' => 'For Rent',
-                                    ])
-                                    ->required(),
+                        Forms\Components\Textarea::make('paragraph')
+                            ->label('Paragraf')
+                            ->nullable(),
+                        Forms\Components\Select::make('status_listing')
+                            ->label('Status Listing')
+                            ->options([
+                                'For Sale' => 'For Sale',
+                                'For Rent' => 'For Rent',
+                            ])
+                            ->required(),
                         Forms\Components\Select::make('status_active')
                             ->label('Status Aktif')
                             ->options([
@@ -80,7 +83,7 @@ class PropertyResource extends Resource
                             ->label('Thumbnail')
                             ->required()
                             ->image()
-                            ->disk('direct_storage') 
+                            ->disk('direct_storage')
                             ->directory('properties')
                             ->maxSize(1024),
                         Forms\Components\Repeater::make('photos')
@@ -91,7 +94,7 @@ class PropertyResource extends Resource
                                     ->label('Foto')
                                     ->image()
                                     ->directory('properties')
-                                    ->disk('direct_storage') 
+                                    ->disk('direct_storage')
                                     ->maxSize(2048)
                                     ->required(),
                             ]),
@@ -153,9 +156,9 @@ class PropertyResource extends Resource
     {
         return $table
             ->columns([
-                 Tables\Columns\ImageColumn::make('thumbnail')
+                Tables\Columns\ImageColumn::make('thumbnail')
                     ->label('Thumbnail')
-                    ->disk('direct_storage') 
+                    ->disk('direct_storage')
                     ->rounded(),
                 Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('price')->label('Harga')->money('idr', true)->sortable(),
@@ -165,42 +168,43 @@ class PropertyResource extends Resource
                 Tables\Columns\TextColumn::make('certificate')->label('Sertifikat')->searchable()->sortable(),
                 Tables\Columns\BadgeColumn::make('status_active')
                     ->label('Status')
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->formatStateUsing(fn($state) => match ($state) {
                         'Active' => 'Active',
                         'Inactive' => 'Inactive',
-                        default => $state, 
+                        default => $state,
                     })
                     ->colors([
-                        'success' => fn ($state) => $state === 'Active',
-                        'danger' => fn ($state) => $state === 'Inactive',
+                        'success' => fn($state) => $state === 'Active',
+                        'danger' => fn($state) => $state === 'Inactive',
                     ])
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status_listing')
                     ->label('Status Listing')
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->formatStateUsing(fn($state) => match ($state) {
                         'For Sale' => 'For Sale',
                         'For Rent' => 'For Rent',
-                        default => $state, 
+                        default => $state,
                     })
                     ->colors([
-                        'success' => fn ($state) => $state === 'For Sale',
-                        'danger' => fn ($state) => $state === 'For Ren',
+                        'success' => fn($state) => $state === 'For Sale',
+                        'danger' => fn($state) => $state === 'For Ren',
                     ])
                     ->searchable()
-                    ->sortable(),    
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
+
 
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-               Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-             ->actionsColumnLabel('Aksi')
+            ->actionsColumnLabel('Aksi')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -237,5 +241,4 @@ class PropertyResource extends Resource
     {
         return auth()->user()?->can('view_any_property');
     }
-
 }

@@ -34,12 +34,12 @@ class Profile extends Page implements Forms\Contracts\HasForms
                 ->required(),
 
             Forms\Components\FileUpload::make('photo')
-                    ->label('Foto Profil')
-                    ->image()
-                    ->disk('direct_storage') // pakai disk yang Anda definisikan
-                    ->directory('users')
-                    ->maxSize(1024)
-                    ->visibility('public'),
+                ->label('Foto Profil')
+                ->image()
+                ->disk('direct_storage') // pakai disk yang Anda definisikan
+                ->directory('users')
+                ->maxSize(1024)
+                ->visibility('public'),
 
             Forms\Components\TextInput::make('phone')
                 ->label('No. HP'),
@@ -48,8 +48,23 @@ class Profile extends Page implements Forms\Contracts\HasForms
                 ->label('Password Baru')
                 ->password()
                 ->helperText('Isi hanya jika ingin mengganti password')
-                ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
-                ->dehydrated(fn ($state) => filled($state)),
+                ->dehydrateStateUsing(fn($state) => filled($state) ? bcrypt($state) : null)
+                ->dehydrated(fn($state) => filled($state)),
+            Forms\Components\TextInput::make('fb')
+                ->label('Facebook')
+                ->nullable()
+                ->maxLength(255),
+            Forms\Components\TextInput::make('twitter')
+                ->label('Twitter')
+                ->nullable()
+                ->maxLength(255),
+            Forms\Components\TextInput::make('linkedin')
+                ->label('Linkedin')
+                ->nullable()
+                ->maxLength(255),
+            Forms\Components\Textarea::make('visi')
+                ->label('Visi')
+                ->nullable(),
         ])->statePath('data');
     }
 

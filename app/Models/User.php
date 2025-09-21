@@ -19,7 +19,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasRole(['admin','agen']); // sesuaikan role kalau perlu
+        return $this->hasRole(['admin', 'agen']); // sesuaikan role kalau perlu
     }
 
     /**
@@ -31,6 +31,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'password',
         'phone',
         'photo',
+        'fb',
+        'twitter',
+        'likedin',
+        'visi',
     ];
 
     /**
