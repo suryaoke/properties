@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\About;
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Property;
 use App\Models\User;
@@ -25,9 +26,11 @@ class FrontController extends Controller
 
         $agen = User::role('agen')->limit(3)->get();
         $propertie = Property::where('status_active', 'Active')->get();
+        $blog = Blog::all();
         return view('front.index', array_merge($data, [
             'agen' => $agen,
-            'propertie' => $propertie
+            'propertie' => $propertie,
+            'blog' => $blog
         ]));
     }
 

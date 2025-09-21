@@ -213,42 +213,39 @@
                     <div class="site-section-title">
                         <h2>Recent Blog</h2>
                     </div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis maiores quisquam saepe architecto
-                        error corporis aliquam. Cum ipsam a consectetur aut sunt sint animi, pariatur corporis, eaque,
-                        deleniti cupiditate officia.</p>
+                    <p> p</p>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="100">
-                    <a href="#"><img src="{{ asset('images/img_4.jpg') }}" alt="Image" class="img-fluid"></a>
-                    <div class="p-4 bg-white">
-                        <span class="d-block text-secondary small text-uppercase">Jan 20th, 2019</span>
-                        <h2 class="h5 text-black mb-3"><a href="#">Art Gossip by Mike Charles</a></h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias enim, ipsa exercitationem veniam
-                            quae sunt.</p>
+                @forelse ($blog as $blogs)
+                    <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="100">
+                        <a href="#"><img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image"
+                                class="img-fluid"></a>
+                        <div class="p-4 bg-white">
+                            <span class="d-block text-secondary small text-uppercase">{{ $blogs->created_at }}</span>
+                            <h2 class="h5 text-black mb-3"><a href="#">{{ $blogs->title }}</a></h2>
+                            <p>{{ $blogs->info }}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="200">
-                    <a href="#"><img src="{{ asset('images/img_2.jpg') }}" alt="Image" class="img-fluid"></a>
-                    <div class="p-4 bg-white">
-                        <span class="d-block text-secondary small text-uppercase">Jan 20th, 2019</span>
-                        <h2 class="h5 text-black mb-3"><a href="#">Art Gossip by Mike Charles</a></h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias enim, ipsa exercitationem veniam
-                            quae sunt.</p>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="300">
-                    <a href="#"><img src="{{ asset('images/img_3.jpg') }}" alt="Image" class="img-fluid"></a>
-                    <div class="p-4 bg-white">
-                        <span class="d-block text-secondary small text-uppercase">Jan 20th, 2019</span>
-                        <h2 class="h5 text-black mb-3"><a href="#">Art Gossip by Mike Charles</a></h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias enim, ipsa exercitationem veniam
-                            quae sunt.</p>
-                    </div>
-                </div>
+                @empty
+                    <p>No blog found.</p>
+                @endforelse
+
 
             </div>
-
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="site-pagination">
+                        <a href="#" class="active">1</a>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <a href="#">4</a>
+                        <a href="#">5</a>
+                        <span>...</span>
+                        <a href="#">10</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -275,11 +272,14 @@
 
                                 <h2 class="mb-2 font-weight-light text-black h4">{{ $agens->name }}</h2>
                                 <span class="d-block mb-3 text-white-opacity-05"> {{ $agens->phone }} </span>
-                                <p>{{$agens->visi}}</p>
+                                <p>{{ $agens->visi }}</p>
                                 <p>
-                                    <a href="{{ $agens->fb }}" class="text-black p-2"><span class="icon-facebook"></span></a>
-                                    <a href="{{ $agens->twitter }}" class="text-black p-2"><span class="icon-twitter"></span></a>
-                                    <a href="{{ $agens->linkedin }}" class="text-black p-2"><span class="icon-linkedin"></span></a>
+                                    <a href="{{ $agens->fb }}" class="text-black p-2"><span
+                                            class="icon-facebook"></span></a>
+                                    <a href="{{ $agens->twitter }}" class="text-black p-2"><span
+                                            class="icon-twitter"></span></a>
+                                    <a href="{{ $agens->linkedin }}" class="text-black p-2"><span
+                                            class="icon-linkedin"></span></a>
                                 </p>
                             </div>
 
