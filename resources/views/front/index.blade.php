@@ -219,20 +219,21 @@
             <div class="row">
                 @forelse ($blog as $blogs)
                     <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="100">
-                        <a href="#"><img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image"
-                                class="img-fluid"></a>
-                        <div class="p-4 bg-white">
-                            <span class="d-block text-secondary small text-uppercase">{{ $blogs->created_at }}</span>
-                            <h2 class="h5 text-black mb-3"><a href="#">{{ $blogs->title }}</a></h2>
-                            <p>{{ $blogs->info }}</p>
-                        </div>
+                        <a href="{{ route('front.blog', $blogs->slug) }}">
+                            <img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image" class="img-fluid">
+                            <div class="p-4 bg-white">
+                                <span
+                                    class="d-block text-secondary small text-uppercase">{{ $blogs->created_at->format('d M Y') }}</span>
+                                <h2 class="h5 text-black mb-3">{{ $blogs->title }}</h2>
+                                <p>{{ $blogs->info }}</p>
+                            </div>
+                        </a>
                     </div>
                 @empty
                     <p>No blog found.</p>
                 @endforelse
-
-
             </div>
+
             <div class="row">
                 <div class="col-md-12 text-center">
                     <div class="site-pagination">

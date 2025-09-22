@@ -83,53 +83,6 @@
               </div>
           </div>
       </div>
-
-      <div class="site-section bg-light">
-          <div class="container">
-              <div class="row mb-5 justify-content-center">
-                  <div class="col-md-7">
-                      <div class="site-section-title text-center">
-                          <h2>Our Agents</h2>
-                          <p>{{ $about->deskripsi_agen }}</p>
-                      </div>
-                  </div>
-              </div>
-              <div class="row">
-
-
-                  @forelse ($agen as $agens)
-                      <div class="col-md-6 col-lg-4 mb-5 mb-lg-5">
-                          <div class="team-member">
-
-                              <img src="{{ Storage::url($agens->photo ?? '') }}" alt="Image"
-                                  class="img-fluid rounded mb-4">
-
-                              <div class="text">
-
-                                  <h2 class="mb-2 font-weight-light text-black h4">{{ $agens->name }}</h2>
-                                  <span class="d-block mb-3 text-white-opacity-05"> {{ $agens->phone }} </span>
-                                  <p>{{ $agens->visi }}</p>
-                                  <p>
-                                      <a href="{{ $agens->fb }}" class="text-black p-2"><span
-                                              class="icon-facebook"></span></a>
-                                      <a href="{{ $agens->twitter }}" class="text-black p-2"><span
-                                              class="icon-twitter"></span></a>
-                                      <a href="{{ $agens->linkedin }}" class="text-black p-2"><span
-                                              class="icon-linkedin"></span></a>
-                                  </p>
-                              </div>
-
-                          </div>
-                      </div>
-                  @empty
-                      <p>No agen.</p>
-                  @endforelse
-
-
-
-              </div>
-          </div>
-      </div>
       <x-footer-property :about="$about" />
 
 

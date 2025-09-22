@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Blog extends Model
 {
@@ -12,6 +12,14 @@ class Blog extends Model
     protected $fillable = [
         'title',
         'info',
-        'photo'
+        'photo',
+        'slug',
     ];
+
+    // Mutator Laravel lama
+    public function setTitleAttribute($value)
+    {
+        $this->attributes['title'] = ucwords($value);
+        $this->attributes['slug']  = Str::slug($value);
+    }
 }

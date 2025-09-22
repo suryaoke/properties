@@ -4,9 +4,7 @@
                <div class="col-lg-4">
                    <div class="mb-5">
                        <h3 class="footer-heading mb-4">{{ $about->title }}</h3>
-                       <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe pariatur reprehenderit vero
-                           atque, consequatur id ratione, et non dignissimos culpa? Ut veritatis, quos illum totam quis
-                           blanditiis, minima minus odio!</p>
+                       <p>{{$about->description}}</p>
                         <p> {{ $about->address }} </p>
                         <p>{{ $about->phone }}</p>
                    </div>
@@ -22,8 +20,8 @@
                        <div class="col-md-6 col-lg-6">
                            <ul class="list-unstyled">
                                <li><a href="{{ route('front.index') }}">Home</a></li>
-                               <li><a href="{{ route('front.index') }}">Blog</a></li>
-                               <li><a href="{{ route('front.index') }}">About</a></li>
+                               <li><a href="{{ route('front.blog.all') }}">Blog</a></li>
+                               <li><a href="{{ route('front.about') }}">About</a></li>
                                <li><a href="{{ route('front.contact') }}">Contact</a></li>
                            </ul>
                        </div>

@@ -17,6 +17,7 @@ class About extends Model
         'twitter',
         'instagram',
         'linkedin',
-        'deskripsi_agen'
+        'deskripsi_agen',
+        'gambar'
     ];
 }

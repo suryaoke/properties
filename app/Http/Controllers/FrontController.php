@@ -65,53 +65,79 @@ class FrontController extends Controller
         return view('front.category', $data);
     }
 
-   public function storeCustomer(Request $request)
-{
-    // Validasi input
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'phone' => 'required|string|max:20',
-        'email' => 'nullable|email|max:255',
-        'message' => 'nullable|string|max:1000',
-        'property_id' => 'required|exists:properties,id',
-        'agen_phone' => 'required|string|max:20', // tambahkan validasi agen_phone
-    ], [
-        'name.required' => 'Nama wajib diisi',
-        'phone.required' => 'Nomor telepon wajib diisi',
-        'email.email' => 'Format email tidak valid',
-        'property_id.required' => 'Property tidak valid',
-        'property_id.exists' => 'Property tidak ditemukan',
-        'agen_phone.required' => 'Nomor telepon agen wajib ada',
-    ]);
+    public function blog(Blog $blog)
+    {
+        $about = About::first();
+        return view('front.blog_detail', compact('about', 'blog'));
+    }
 
-    try {
-        // Ambil data property
-        $property = Property::find($validated['property_id']);
+    public function about()
+    {
+        $about = About::first();
+        return view('front.about', compact('about'));
+    }
 
-        // Simpan data customer
-        $customer = ManageCustomer::create([
-            'name' => $validated['name'],
-            'phone' => $validated['phone'],
-            'email' => $validated['email'] ?? null,
-            'message' => $validated['message'] ?? null,
-            'property_id' => $validated['property_id'],
-            'status' => 'pending'
+    public function blogAll()
+    {
+        $data = $this->propertyService->getCategoriesAndCities();
+
+        $agen = User::role('agen')->limit(3)->get();
+        $propertie = Property::where('status_active', 'Active')->get();
+        $blog = Blog::all();
+        return view('front.blog', array_merge($data, [
+            'agen' => $agen,
+            'propertie' => $propertie,
+            'blog' => $blog
+        ]));
+    }
+
+    public function storeCustomer(Request $request)
+    {
+        // Validasi input
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'message' => 'nullable|string|max:1000',
+            'property_id' => 'required|exists:properties,id',
+            'agen_phone' => 'required|string|max:20', // tambahkan validasi agen_phone
+        ], [
+            'name.required' => 'Nama wajib diisi',
+            'phone.required' => 'Nomor telepon wajib diisi',
+            'email.email' => 'Format email tidak valid',
+            'property_id.required' => 'Property tidak valid',
+            'property_id.exists' => 'Property tidak ditemukan',
+            'agen_phone.required' => 'Nomor telepon agen wajib ada',
         ]);
 
-        // Format pesan WhatsApp
-        $waMessage = $this->formatWhatsAppMessage($validated, $property);
+        try {
+            // Ambil data property
+            $property = Property::find($validated['property_id']);
 
-        // Gunakan nomor agen dari request hidden input
-        $agenPhone = $this->formatPhoneNumber($validated['agen_phone']);
+            // Simpan data customer
+            $customer = ManageCustomer::create([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'],
+                'email' => $validated['email'] ?? null,
+                'message' => $validated['message'] ?? null,
+                'property_id' => $validated['property_id'],
+                'status' => 'pending'
+            ]);
 
-        // URL WhatsApp Web
-        $whatsappUrl = "https://web.whatsapp.com/send?phone={$agenPhone}&text=" . urlencode($waMessage);
+            // Format pesan WhatsApp
+            $waMessage = $this->formatWhatsAppMessage($validated, $property);
 
-        return redirect()->away($whatsappUrl);
-    } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.')->withInput();
+            // Gunakan nomor agen dari request hidden input
+            $agenPhone = $this->formatPhoneNumber($validated['agen_phone']);
+
+            // URL WhatsApp Web
+            $whatsappUrl = "https://web.whatsapp.com/send?phone={$agenPhone}&text=" . urlencode($waMessage);
+
+            return redirect()->away($whatsappUrl);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.')->withInput();
+        }
     }
-}
 
     /**
      * Format pesan WhatsApp

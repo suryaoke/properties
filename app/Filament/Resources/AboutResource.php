@@ -71,6 +71,13 @@ class AboutResource extends Resource
                             ->disk('direct_storage') // Menggunakan disk direct_storage
                             ->directory('abouts') // Folder abouts di storage/abouts/
                             ->maxSize(1024),
+                        Forms\Components\FileUpload::make('gambar')
+                            ->label('Gambar')
+                            ->image()
+                            ->required()
+                            ->disk('direct_storage') // Menggunakan disk direct_storage
+                            ->directory('abouts') // Folder abouts di storage/abouts/
+                            ->maxSize(1024),
                     ])->columns(2),
             ]);
     }
@@ -84,6 +91,10 @@ class AboutResource extends Resource
                     ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
                     ->rounded(),
                 Tables\Columns\TextColumn::make('title')->label('Judul Logo')->searchable()->sortable(),
+                 Tables\Columns\ImageColumn::make('gambar')
+                    ->label('Gambar')
+                    ->disk('direct_storage') // Menentukan disk untuk menampilkan gambar
+                    ->rounded(),
                 Tables\Columns\TextColumn::make('email')->label('Email')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('phone')->label('No. HP')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('fb')->label('Facebook')->searchable()->sortable(),

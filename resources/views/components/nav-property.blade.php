@@ -31,8 +31,8 @@
                                  <li class="active">
                                      <a href="{{ route('front.index') }}">Home</a>
                                  </li>
-                                 <li><a href="{{ route('front.index') }}">Blog</a></li>
-                                 <li><a href="{{ route('front.index') }}">About</a></li>
+                                 <li><a href="{{ route('front.blog.all') }}">Blog</a></li>
+                                 <li><a href="{{ route('front.about') }}">About</a></li>
                                  <li><a href="{{ route('front.contact') }}">Contact</a></li>
                              </ul>
                          </nav>

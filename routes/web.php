@@ -14,6 +14,11 @@ Route::post('/customer/store', [FrontController::class, 'storeCustomer'])->name(
 
 Route::get('/contact', [FrontController::class, 'contact'])->name('front.contact');
 
+Route::get('/blog/{blog:slug}', [FrontController::class, 'blog'])->name('front.blog');
+
+Route::get('/about', [FrontController::class, 'about'])->name('front.about');
+
+Route::get('/blog', [FrontController::class, 'blogAll'])->name('front.blog.all');
 
 
 Route::get('/dashboard', function () {
