@@ -87,7 +87,7 @@ class FrontController extends Controller
 
         $agen = User::role('agen')->limit(3)->get();
         $propertie = Property::where('status_active', 'Active')->get();
-        $blog = Blog::all();
+        $blog = Blog::paginate(6);
         return view('front.blog', array_merge($data, [
             'agen' => $agen,
             'propertie' => $propertie,
