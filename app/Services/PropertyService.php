@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\About;
@@ -7,42 +8,51 @@ use App\Models\City;
 use App\Models\Property;
 use App\Models\PropertyType;
 
-class PropertyService {
+class PropertyService
+{
 
 
-    public function getCategoriesAndCities(){
+    public function getCategoriesAndCities()
+    {
 
         return [
             'categories' => Category::latest()->get(),
             'cities' => City::latest()->get(),
             'types' => PropertyType::latest()->get(),
-            'about' =>About::first(),
+            'about' => About::first(),
         ];
     }
 
-    public function searchProperties($filters){
+    public function searchProperties($filters)
+    {
         $query = Property::query();
 
-        if(!empty($filters['category'])){
-            $query->where('category_id',$filters['category']);
+        if (!empty($filters['category'])) {
+            $query->where('category_id', $filters['category']);
         }
-        if(!empty($filters['city'])){
-            $query->where('city_id',$filters['city']);
+        if (!empty($filters['city'])) {
+            $query->where('city_id', $filters['city']);
         }
-        if(!empty($filters['type'])){
-            $query->where('property_type_id',$filters['type']);
+        if (!empty($filters['type'])) {
+            $query->where('property_type_id', $filters['type']);
         }
 
-        $property = $query->get();
+        // Ubah get() menjadi paginate() dengan 12 item per halaman
+        $property = $query->paginate(6);
+
+        // Append filter parameters ke pagination links
+        $property->appends($filters);
+
         $category = Category::findOrFail($filters['category'] ?? null);
         $city = City::findOrFail($filters['city'] ?? null);
         $type = PropertyType::findOrFail($filters['type'] ?? null);
         $about = About::first();
 
-        return compact('property','category','city','type','about');
+        return compact('property', 'category', 'city', 'type', 'about');
     }
-    public function getPropertyDetails($property){
-        $property->load(['photos','facilities','category','city','propertyType', 'facilities.facility']);
+    public function getPropertyDetails($property)
+    {
+        $property->load(['photos', 'facilities', 'category', 'city', 'propertyType', 'facilities.facility']);
         return $property;
     }
 }

@@ -21,18 +21,22 @@ class FrontController extends Controller
     }
 
     public function index()
-    {
-        $data = $this->propertyService->getCategoriesAndCities();
+{
+    $data = $this->propertyService->getCategoriesAndCities();
 
-        $agen = User::role('agen')->limit(3)->get();
-        $propertie = Property::where('status_active', 'Active')->get();
-        $blog = Blog::all();
-        return view('front.index', array_merge($data, [
-            'agen' => $agen,
-            'propertie' => $propertie,
-            'blog' => $blog
-        ]));
-    }
+    $agen = User::role('agen')->limit(3)->get();
+
+    $propertie = Property::where('status_active', 'Active')->paginate(6);
+
+    // Tambahkan pagination untuk blog dengan parameter berbeda
+    $blog = Blog::latest()->paginate(6, ['*'], 'blog_page');
+
+    return view('front.index', array_merge($data, [
+        'agen' => $agen,
+        'propertie' => $propertie,
+        'blog' => $blog
+    ]));
+}
 
     public function search(Request $request)
     {
