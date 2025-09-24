@@ -21,54 +21,54 @@ class FrontController extends Controller
     }
 
    public function index(Request $request)
-{
-    $data = $this->propertyService->getCategoriesAndCities();
-    $agen = User::role('agen')->limit(3)->get();
-    
-    // Get filter parameters
-    $statusFilter = $request->get('status');
-    $sortBy = $request->get('sort_by');
-    
-    // Build query
-    $query = Property::where('status_active', 'Active');
-    
-    // Apply status filter if provided
-    if ($statusFilter && in_array($statusFilter, ['Rent', 'Sale'])) {
-        if ($statusFilter === 'Rent') {
-            $query->where('status_listing', 'For Rent');
-        } elseif ($statusFilter === 'Sale') {
-            $query->where('status_listing', 'For Sale');
+    {
+        $data = $this->propertyService->getCategoriesAndCities();
+        $agen = User::role('agen')->limit(3)->get();
+        
+        // Get filter parameters
+        $statusFilter = $request->get('status');
+        $sortBy = $request->get('sort_by');
+        
+        // Build query
+        $query = Property::where('status_active', 'Active');
+        
+        // Apply status filter if provided
+        if ($statusFilter && in_array($statusFilter, ['Rent', 'Sale'])) {
+            if ($statusFilter === 'Rent') {
+                $query->where('status_listing', 'For Rent');
+            } elseif ($statusFilter === 'Sale') {
+                $query->where('status_listing', 'For Sale');
+            }
         }
-    }
-    
-    // Apply sorting based on price
-    if ($sortBy && in_array($sortBy, ['price_asc', 'price_desc'])) {
-        if ($sortBy === 'price_asc') {
-            $query->orderBy('price', 'asc');
-        } elseif ($sortBy === 'price_desc') {
-            $query->orderBy('price', 'desc');
+        
+        // Apply sorting based on price
+        if ($sortBy && in_array($sortBy, ['price_asc', 'price_desc'])) {
+            if ($sortBy === 'price_asc') {
+                $query->orderBy('price', 'asc');
+            } elseif ($sortBy === 'price_desc') {
+                $query->orderBy('price', 'desc');
+            }
+        } else {
+            // Default sorting (latest first)
+            $query->latest();
         }
-    } else {
-        // Default sorting (latest first)
-        $query->latest();
+        
+        $propertie = $query->paginate(6);
+        
+        // Preserve query parameters in pagination links
+        $propertie->appends($request->query());
+        
+        // Tambahkan pagination untuk blog dengan parameter berbeda
+        $blog = Blog::latest()->paginate(3, ['*'], 'blog_page');
+        
+        return view('front.index', array_merge($data, [
+            'agen' => $agen,
+            'propertie' => $propertie,
+            'blog' => $blog,
+            'currentStatus' => $statusFilter, // Pass current filter to view
+            'currentSort' => $sortBy // Pass current sort to view
+        ]));
     }
-    
-    $propertie = $query->paginate(6);
-    
-    // Preserve query parameters in pagination links
-    $propertie->appends($request->query());
-    
-    // Tambahkan pagination untuk blog dengan parameter berbeda
-    $blog = Blog::latest()->paginate(3, ['*'], 'blog_page');
-    
-    return view('front.index', array_merge($data, [
-        'agen' => $agen,
-        'propertie' => $propertie,
-        'blog' => $blog,
-        'currentStatus' => $statusFilter, // Pass current filter to view
-        'currentSort' => $sortBy // Pass current sort to view
-    ]));
-}
     public function search(Request $request)
     {
         $data = $this->propertyService->searchProperties($request->all());
@@ -126,135 +126,263 @@ class FrontController extends Controller
         ]));
     }
 
-    public function storeCustomer(Request $request)
-    {
-        // Validasi input
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'message' => 'nullable|string|max:1000',
-            'property_id' => 'required|exists:properties,id',
-            'agen_phone' => 'required|string|max:20', // tambahkan validasi agen_phone
-        ], [
-            'name.required' => 'Nama wajib diisi',
-            'phone.required' => 'Nomor telepon wajib diisi',
-            'email.email' => 'Format email tidak valid',
-            'property_id.required' => 'Property tidak valid',
-            'property_id.exists' => 'Property tidak ditemukan',
-            'agen_phone.required' => 'Nomor telepon agen wajib ada',
-        ]);
+    // public function storeCustomer(Request $request)
+    // {
+    //     // Validasi input
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'phone' => 'required|string|max:20',
+    //         'email' => 'nullable|email|max:255',
+    //         'message' => 'nullable|string|max:1000',
+    //         'property_id' => 'required|exists:properties,id',
+    //         'agen_phone' => 'required|string|max:20', // tambahkan validasi agen_phone
+    //     ], [
+    //         'name.required' => 'Nama wajib diisi',
+    //         'phone.required' => 'Nomor telepon wajib diisi',
+    //         'email.email' => 'Format email tidak valid',
+    //         'property_id.required' => 'Property tidak valid',
+    //         'property_id.exists' => 'Property tidak ditemukan',
+    //         'agen_phone.required' => 'Nomor telepon agen wajib ada',
+    //     ]);
 
-        try {
-            // Ambil data property
-            $property = Property::find($validated['property_id']);
+    //     try {
+    //         // Ambil data property
+    //         $property = Property::find($validated['property_id']);
 
-            // Simpan data customer
-            $customer = ManageCustomer::create([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-                'email' => $validated['email'] ?? null,
-                'message' => $validated['message'] ?? null,
-                'property_id' => $validated['property_id'],
-                'status' => 'pending'
-            ]);
+    //         // Simpan data customer
+    //         $customer = ManageCustomer::create([
+    //             'name' => $validated['name'],
+    //             'phone' => $validated['phone'],
+    //             'email' => $validated['email'] ?? null,
+    //             'message' => $validated['message'] ?? null,
+    //             'property_id' => $validated['property_id'],
+    //             'status' => 'pending'
+    //         ]);
 
-            // Format pesan WhatsApp
-            $waMessage = $this->formatWhatsAppMessage($validated, $property);
+    //         // Format pesan WhatsApp
+    //         $waMessage = $this->formatWhatsAppMessage($validated, $property);
 
-            // Gunakan nomor agen dari request hidden input
-            $agenPhone = $this->formatPhoneNumber($validated['agen_phone']);
+    //         // Gunakan nomor agen dari request hidden input
+    //         $agenPhone = $this->formatPhoneNumber($validated['agen_phone']);
 
-            // URL WhatsApp Web
-            $whatsappUrl = "https://web.whatsapp.com/send?phone={$agenPhone}&text=" . urlencode($waMessage);
+    //         // URL WhatsApp Web
+    //         $whatsappUrl = "https://web.whatsapp.com/send?phone={$agenPhone}&text=" . urlencode($waMessage);
 
-            return redirect()->away($whatsappUrl);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.')->withInput();
-        }
-    }
+    //         return redirect()->away($whatsappUrl);
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.')->withInput();
+    //     }
+    // }
 
-    /**
-     * Format pesan WhatsApp
-     */
-    private function formatWhatsAppMessage($data, $property)
-    {
-        $message = "Halo, saya tertarik dengan properti berikut:\n\n";
-        $message .= "🏠 *{$property->name}*\n";
-        $message .= "💰 Harga: Rp " . number_format($property->price, 0, ',', '.') . "\n\n";
+    // /**
+    //  * Format pesan WhatsApp
+    //  */
+    // private function formatWhatsAppMessage($data, $property)
+    // {
+    //     $message = "Halo, saya tertarik dengan properti berikut:\n\n";
+    //     $message .= "🏠 *{$property->name}*\n";
+    //     $message .= "💰 Harga: Rp " . number_format($property->price, 0, ',', '.') . "\n\n";
 
-        $message .= "📋 *Detail Kontak:*\n";
-        $message .= "👤 Nama: {$data['name']}\n";
-        $message .= "📞 Telepon: {$data['phone']}\n";
+    //     $message .= "📋 *Detail Kontak:*\n";
+    //     $message .= "👤 Nama: {$data['name']}\n";
+    //     $message .= "📞 Telepon: {$data['phone']}\n";
 
-        if (!empty($data['email'])) {
-            $message .= "📧 Email: {$data['email']}\n";
-        }
+    //     if (!empty($data['email'])) {
+    //         $message .= "📧 Email: {$data['email']}\n";
+    //     }
 
-        if (!empty($data['message'])) {
-            $message .= "\n💬 *Pesan:*\n{$data['message']}\n";
-        }
+    //     if (!empty($data['message'])) {
+    //         $message .= "\n💬 *Pesan:*\n{$data['message']}\n";
+    //     }
 
-        $message .= "\nMohon informasi lebih lanjut mengenai properti ini. Terima kasih! 🙏";
+    //     $message .= "\nMohon informasi lebih lanjut mengenai properti ini. Terima kasih! 🙏";
 
-        return $message;
-    }
+    //     return $message;
+    // }
 
-    /**
-     * Preview pesan WhatsApp sebelum dikirim (method opsional)
-     */
-    public function previewWhatsApp(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'message' => 'nullable|string|max:1000',
-            'property_id' => 'required|exists:properties,id'
-        ]);
+    // /**
+    //  * Preview pesan WhatsApp sebelum dikirim (method opsional)
+    //  */
+    // public function previewWhatsApp(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'phone' => 'required|string|max:20',
+    //         'email' => 'nullable|email|max:255',
+    //         'message' => 'nullable|string|max:1000',
+    //         'property_id' => 'required|exists:properties,id'
+    //     ]);
 
+    //     $property = Property::find($validated['property_id']);
+    //     $agen = User::role('agen')->first();
+    //     $waMessage = $this->formatWhatsAppMessage($validated, $property);
+    //     $agenPhone = $this->formatPhoneNumber($agen->phone);
+
+    //     return response()->json([
+    //         'message' => $waMessage,
+    //         'agent_name' => $agen->name,
+    //         'agent_phone' => $agen->phone,
+    //         'whatsapp_url' => "https://web.whatsapp.com/send?phone={$agenPhone}&text=" . urlencode($waMessage)
+    //     ]);
+    // }
+
+    // /**
+    //  * Format nomor telepon untuk WhatsApp
+    //  */
+    // private function formatPhoneNumber($phone)
+    // {
+    //     // Hilangkan semua karakter selain angka
+    //     $phone = preg_replace('/[^0-9]/', '', $phone);
+
+    //     // Jika dimulai dengan 08, ganti dengan 628
+    //     if (substr($phone, 0, 2) === '08') {
+    //         $phone = '62' . substr($phone, 1);
+    //     }
+    //     // Jika dimulai dengan 8, tambah 62 di depan
+    //     elseif (substr($phone, 0, 1) === '8') {
+    //         $phone = '62' . $phone;
+    //     }
+    //     // Jika dimulai dengan +62, hilangkan +
+    //     elseif (substr($phone, 0, 3) === '+62') {
+    //         $phone = substr($phone, 1);
+    //     }
+    //     // Jika tidak dimulai dengan 62, tambah 62 di depan
+    //     elseif (substr($phone, 0, 2) !== '62') {
+    //         $phone = '62' . $phone;
+    //     }
+
+    //     return $phone;
+    // }
+
+public function storeCustomer(Request $request)
+{
+    // Validasi input
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'phone' => 'required|string|max:20',
+        'email' => 'nullable|email|max:255',
+        'message' => 'nullable|string|max:1000',
+        'property_id' => 'required|exists:properties,id',
+        'agen_phone' => 'required|string|max:20', // tambahkan validasi agen_phone
+    ], [
+        'name.required' => 'Nama wajib diisi',
+        'phone.required' => 'Nomor telepon wajib diisi',
+        'email.email' => 'Format email tidak valid',
+        'property_id.required' => 'Property tidak valid',
+        'property_id.exists' => 'Property tidak ditemukan',
+        'agen_phone.required' => 'Nomor telepon agen wajib ada',
+    ]);
+
+    try {
+        // Ambil data property
         $property = Property::find($validated['property_id']);
-        $agen = User::role('agen')->first();
-        $waMessage = $this->formatWhatsAppMessage($validated, $property);
-        $agenPhone = $this->formatPhoneNumber($agen->phone);
 
-        return response()->json([
-            'message' => $waMessage,
-            'agent_name' => $agen->name,
-            'agent_phone' => $agen->phone,
-            'whatsapp_url' => "https://web.whatsapp.com/send?phone={$agenPhone}&text=" . urlencode($waMessage)
+        // Simpan data customer
+        $customer = ManageCustomer::create([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'] ?? null,
+            'message' => $validated['message'] ?? null,
+            'property_id' => $validated['property_id'],
+            'status' => 'pending'
         ]);
+
+        // Format pesan WhatsApp (opsional untuk notifikasi internal atau log)
+        $waMessage = $this->formatWhatsAppMessage($validated, $property);
+
+        // Gunakan nomor agen dari request hidden input
+        $agenPhone = $this->formatPhoneNumber($validated['agen_phone']);
+
+        // Simpan log pesan atau proses internal lainnya jika diperlukan
+        // Log::info("Customer inquiry received", ['customer_id' => $customer->id, 'message' => $waMessage]);
+
+        // Redirect kembali ke halaman yang sama dengan pesan sukses
+        return redirect()->back()->with('success', 'Pesan berhasil dikirim, kami akan menghubungi kembali untuk konfirmasi');
+        
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.')->withInput();
+    }
+}
+
+/**
+ * Format pesan WhatsApp (tetap dipertahankan untuk keperluan internal)
+ */
+private function formatWhatsAppMessage($data, $property)
+{
+    $message = "Halo, saya tertarik dengan properti berikut:\n\n";
+    $message .= "🏠 *{$property->name}*\n";
+    $message .= "💰 Harga: Rp " . number_format($property->price, 0, ',', '.') . "\n\n";
+
+    $message .= "📋 *Detail Kontak:*\n";
+    $message .= "👤 Nama: {$data['name']}\n";
+    $message .= "📞 Telepon: {$data['phone']}\n";
+
+    if (!empty($data['email'])) {
+        $message .= "📧 Email: {$data['email']}\n";
     }
 
-    /**
-     * Format nomor telepon untuk WhatsApp
-     */
-    private function formatPhoneNumber($phone)
-    {
-        // Hilangkan semua karakter selain angka
-        $phone = preg_replace('/[^0-9]/', '', $phone);
-
-        // Jika dimulai dengan 08, ganti dengan 628
-        if (substr($phone, 0, 2) === '08') {
-            $phone = '62' . substr($phone, 1);
-        }
-        // Jika dimulai dengan 8, tambah 62 di depan
-        elseif (substr($phone, 0, 1) === '8') {
-            $phone = '62' . $phone;
-        }
-        // Jika dimulai dengan +62, hilangkan +
-        elseif (substr($phone, 0, 3) === '+62') {
-            $phone = substr($phone, 1);
-        }
-        // Jika tidak dimulai dengan 62, tambah 62 di depan
-        elseif (substr($phone, 0, 2) !== '62') {
-            $phone = '62' . $phone;
-        }
-
-        return $phone;
+    if (!empty($data['message'])) {
+        $message .= "\n💬 *Pesan:*\n{$data['message']}\n";
     }
 
+    $message .= "\nMohon informasi lebih lanjut mengenai properti ini. Terima kasih! 🙏";
 
+    return $message;
+}
+
+/**
+ * Preview pesan WhatsApp sebelum dikirim (method opsional - bisa dihapus jika tidak digunakan)
+ */
+public function previewWhatsApp(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'phone' => 'required|string|max:20',
+        'email' => 'nullable|email|max:255',
+        'message' => 'nullable|string|max:1000',
+        'property_id' => 'required|exists:properties,id'
+    ]);
+
+    $property = Property::find($validated['property_id']);
+    $agen = User::role('agen')->first();
+    $waMessage = $this->formatWhatsAppMessage($validated, $property);
+    $agenPhone = $this->formatPhoneNumber($agen->phone);
+
+    return response()->json([
+        'message' => $waMessage,
+        'agent_name' => $agen->name,
+        'agent_phone' => $agen->phone,
+        'whatsapp_url' => "https://web.whatsapp.com/send?phone={$agenPhone}&text=" . urlencode($waMessage)
+    ]);
+}
+
+/**
+ * Format nomor telepon untuk WhatsApp (tetap dipertahankan jika masih diperlukan)
+ */
+private function formatPhoneNumber($phone)
+{
+    // Hilangkan semua karakter selain angka
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+
+    // Jika dimulai dengan 08, ganti dengan 628
+    if (substr($phone, 0, 2) === '08') {
+        $phone = '62' . substr($phone, 1);
+    }
+    // Jika dimulai dengan 8, tambah 62 di depan
+    elseif (substr($phone, 0, 1) === '8') {
+        $phone = '62' . $phone;
+    }
+    // Jika dimulai dengan +62, hilangkan +
+    elseif (substr($phone, 0, 3) === '+62') {
+        $phone = substr($phone, 1);
+    }
+    // Jika tidak dimulai dengan 62, tambah 62 di depan
+    elseif (substr($phone, 0, 2) !== '62') {
+        $phone = '62' . $phone;
+    }
+
+    return $phone;
+}
     public function contact()
     {
         $data = $this->propertyService->getCategoriesAndCities();
