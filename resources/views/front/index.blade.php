@@ -56,25 +56,35 @@
                 <div class="col-md-12">
                     <div class="view-options bg-white py-3 px-3 d-md-flex align-items-center">
                         <div class="mr-auto">
-                            <a href="index.html" class="icon-view view-module active"><span
-                                    class="icon-view_module"></span></a>
-                            <a href="view-list.html" class="icon-view view-list"><span class="icon-view_list"></span></a>
-
+                            <div>
+                                <a href="{{ route('front.index', array_merge(request()->except('status'), [])) }}"
+                                    class="view-list px-3 border-right {{ !request('status') ? 'active' : '' }}">
+                                    All
+                                </a>
+                                <a href="{{ route('front.index', array_merge(request()->except('status'), ['status' => 'Rent'])) }}"
+                                    class="view-list px-3 border-right {{ request('status') === 'Rent' ? 'active' : '' }}">
+                                    Rent
+                                </a>
+                                <a href="{{ route('front.index', array_merge(request()->except('status'), ['status' => 'Sale'])) }}"
+                                    class="view-list px-3 {{ request('status') === 'Sale' ? 'active' : '' }}">
+                                    Sale
+                                </a>
+                            </div>
                         </div>
                         <div class="ml-auto d-flex align-items-center">
-                            <div>
-                                <a href="#" class="view-list px-3 border-right active">All</a>
-                                <a href="#" class="view-list px-3 border-right">Rent</a>
-                                <a href="#" class="view-list px-3">Sale</a>
-                            </div>
-
-
                             <div class="select-wrap">
                                 <span class="icon icon-arrow_drop_down"></span>
-                                <select class="form-control form-control-sm d-block rounded-0">
+                                <select class="form-control form-control-sm d-block rounded-0" id="sortSelect">
                                     <option value="">Sort by</option>
-                                    <option value="">Price Ascending</option>
-                                    <option value="">Price Descending</option>
+                                    <option value="price_asc" {{ request('sort_by') === 'price_asc' ? 'selected' : '' }}>
+                                        Harga Terendah ke Tertinggi
+                                    </option>
+                                    <option value="price_desc" {{ request('sort_by') === 'price_desc' ? 'selected' : '' }}>
+                                        Harga Tertinggi ke Terendah
+                                    </option>
+                                    {{-- <option value="latest" {{ request('sort_by') === 'latest' ? 'selected' : '' }}>
+                                        Latest
+                                    </option> --}}
                                 </select>
                             </div>
                         </div>
@@ -97,11 +107,11 @@
                             <div class="property-thumbnail">
                                 <div class="offer-type-wrap">
                                     @if ($properties->status_listing === 'For Rent')
-                                        <span class="offer-type bg-danger"> {{ $properties->status_listing }}</span>
+                                        <span class="offer-type bg-danger">{{ $properties->status_listing }}</span>
                                     @elseif($properties->status_listing === 'For Sale')
-                                        <span class="offer-type bg-success"> {{ $properties->status_listing }}</span>
+                                        <span class="offer-type bg-success">{{ $properties->status_listing }}</span>
                                     @else
-                                        <span class="offer-type bg-secondary"> {{ $properties->status_listing }}</span>
+                                        <span class="offer-type bg-secondary">{{ $properties->status_listing }}</span>
                                     @endif
                                 </div>
                                 <img src="{{ Storage::url($properties->thumbnail ?? '') }}" alt="Image"
@@ -124,16 +134,15 @@
                                     </li>
                                     <li>
                                         <span class="property-specs">Bathroom</span>
-                                        <span class="property-specs"> {{ $properties->bathrooms ?? '0' }} </span>
+                                        <span class="property-specs">{{ $properties->bathrooms ?? '0' }}</span>
                                     </li>
-
                                     <li>
-                                        <span class="property-specs">Land Are</span>
-                                        <span class="property-specs"> {{ $properties->land_area ?? '0' }} </span>
+                                        <span class="property-specs">Land Area</span>
+                                        <span class="property-specs">{{ $properties->land_area ?? '0' }}</span>
                                     </li>
                                     <li>
                                         <span class="property-specs">Certificate</span>
-                                        <span class="property-specs"> {{ $properties->certificate ?? '-' }} </span>
+                                        <span class="property-specs">{{ $properties->certificate ?? '-' }}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -147,7 +156,6 @@
                         </div>
                     </div>
                 @endforelse
-
             </div>
 
             {{-- Results Info --}}
@@ -260,104 +268,104 @@
         </div>
     </div>
 
-   {{-- blog --}}
+    {{-- blog --}}
 
-<div class="site-section bg-light">
-    <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-7 text-center">
-                <div class="site-section-title">
-                    <h2>Recent Blog</h2>
-                </div>
-                <p>Stay updated with our latest news and insights</p>
-            </div>
-        </div>
-        <div class="row">
-            @forelse ($blog as $blogs)
-                <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="100">
-                    <a href="{{ route('front.blog', $blogs->slug) }}">
-                        <img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image" class="img-fluid">
-                        <div class="p-4 bg-white">
-                            <span
-                                class="d-block text-secondary small text-uppercase">{{ $blogs->created_at->format('d M Y') }}</span>
-                            <h2 class="h5 text-black mb-3">{{ $blogs->title }}</h2>
-                            <p>{{ $blogs->info }}</p>
-                        </div>
-                    </a>
-                </div>
-            @empty
-                <div class="col-12">
-                    <div class="text-center py-5">
-                        <h4>No blog found</h4>
-                        <p class="text-muted">No blog posts available at the moment</p>
+    <div class="site-section bg-light">
+        <div class="container">
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-7 text-center">
+                    <div class="site-section-title">
+                        <h2>Recent Blog</h2>
                     </div>
-                </div>
-            @endforelse
-        </div>
-
-        {{-- Blog Results Info --}}
-        @if($blog->hasPages())
-            <div class="row mb-4">
-                <div class="col-12 text-center">
-                    <p class="text-muted">
-                        Showing {{ $blog->firstItem() }} to {{ $blog->lastItem() }}
-                        of {{ $blog->total() }} blog posts
-                    </p>
+                    <p>Stay updated with our latest news and insights</p>
                 </div>
             </div>
-        @endif
-
-        {{-- Blog Pagination --}}
-        @if($blog->hasPages())
             <div class="row">
-                <div class="col-md-12 text-center">
-                    <div class="site-pagination">
-                        @php
-                            $currentPage = $blog->currentPage();
-                            $lastPage = $blog->lastPage();
-                            $showRange = 2; // Jumlah halaman yang ditampilkan di kiri dan kanan halaman aktif
-                        @endphp
+                @forelse ($blog as $blogs)
+                    <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="100">
+                        <a href="{{ route('front.blog', $blogs->slug) }}">
+                            <img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image" class="img-fluid">
+                            <div class="p-4 bg-white">
+                                <span
+                                    class="d-block text-secondary small text-uppercase">{{ $blogs->created_at->format('d M Y') }}</span>
+                                <h2 class="h5 text-black mb-3">{{ $blogs->title }}</h2>
+                                <p>{{ $blogs->info }}</p>
+                            </div>
+                        </a>
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <h4>No blog found</h4>
+                            <p class="text-muted">No blog posts available at the moment</p>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
 
-                        {{-- Previous Page --}}
-                        @if(!$blog->onFirstPage())
-                            <a href="{{ $blog->previousPageUrl() }}">&laquo;</a>
-                        @endif
-
-                        {{-- First Page --}}
-                        @if($currentPage > $showRange + 2)
-                            <a href="{{ $blog->url(1) }}">1</a>
-                            @if($currentPage > $showRange + 3)
-                                <span>...</span>
-                            @endif
-                        @endif
-
-                        {{-- Pages around current page --}}
-                        @for($i = max(1, $currentPage - $showRange); $i <= min($lastPage, $currentPage + $showRange); $i++)
-                            @if($i == $currentPage)
-                                <a href="#" class="active">{{ $i }}</a>
-                            @else
-                                <a href="{{ $blog->url($i) }}">{{ $i }}</a>
-                            @endif
-                        @endfor
-
-                        {{-- Last Page --}}
-                        @if($currentPage < $lastPage - $showRange - 1)
-                            @if($currentPage < $lastPage - $showRange - 2)
-                                <span>...</span>
-                            @endif
-                            <a href="{{ $blog->url($lastPage) }}">{{ $lastPage }}</a>
-                        @endif
-
-                        {{-- Next Page --}}
-                        @if($blog->hasMorePages())
-                            <a href="{{ $blog->nextPageUrl() }}">&raquo;</a>
-                        @endif
+            {{-- Blog Results Info --}}
+            @if ($blog->hasPages())
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <p class="text-muted">
+                            Showing {{ $blog->firstItem() }} to {{ $blog->lastItem() }}
+                            of {{ $blog->total() }} blog posts
+                        </p>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
+
+            {{-- Blog Pagination --}}
+            @if ($blog->hasPages())
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="site-pagination">
+                            @php
+                                $currentPage = $blog->currentPage();
+                                $lastPage = $blog->lastPage();
+                                $showRange = 2; // Jumlah halaman yang ditampilkan di kiri dan kanan halaman aktif
+                            @endphp
+
+                            {{-- Previous Page --}}
+                            @if (!$blog->onFirstPage())
+                                <a href="{{ $blog->previousPageUrl() }}">&laquo;</a>
+                            @endif
+
+                            {{-- First Page --}}
+                            @if ($currentPage > $showRange + 2)
+                                <a href="{{ $blog->url(1) }}">1</a>
+                                @if ($currentPage > $showRange + 3)
+                                    <span>...</span>
+                                @endif
+                            @endif
+
+                            {{-- Pages around current page --}}
+                            @for ($i = max(1, $currentPage - $showRange); $i <= min($lastPage, $currentPage + $showRange); $i++)
+                                @if ($i == $currentPage)
+                                    <a href="#" class="active">{{ $i }}</a>
+                                @else
+                                    <a href="{{ $blog->url($i) }}">{{ $i }}</a>
+                                @endif
+                            @endfor
+
+                            {{-- Last Page --}}
+                            @if ($currentPage < $lastPage - $showRange - 1)
+                                @if ($currentPage < $lastPage - $showRange - 2)
+                                    <span>...</span>
+                                @endif
+                                <a href="{{ $blog->url($lastPage) }}">{{ $lastPage }}</a>
+                            @endif
+
+                            {{-- Next Page --}}
+                            @if ($blog->hasMorePages())
+                                <a href="{{ $blog->nextPageUrl() }}">&raquo;</a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
     </div>
-</div>
     {{-- // Agent // --}}
     <div class="site-section">
         <div class="container">
@@ -405,5 +413,74 @@
     <x-footer-property :about="$about" />
 
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterLinks = document.querySelectorAll('.view-list');
 
+            filterLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Remove active class from all links
+                    filterLinks.forEach(l => l.classList.remove('active'));
+
+                    // Add active class to clicked link
+                    this.classList.add('active');
+
+                    // Get filter value
+                    const url = new URL(this.href);
+                    const status = url.searchParams.get('status');
+
+                    // Update URL without reload
+                    const newUrl = status ?
+                        `${window.location.pathname}?status=${status}` :
+                        window.location.pathname;
+
+                    window.history.pushState({}, '', newUrl);
+
+                    // Here you can add AJAX call to load filtered properties
+                    // filterProperties(status);
+                });
+            });
+        });
+        // Force navigation - letakkan di akhir body sebelum </body>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const filterLinks = document.querySelectorAll('a[href*="status="], a.view-list');
+                filterLinks.forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        e.stopImmediatePropagation();
+                        window.location.href = this.href;
+                    }, true);
+                });
+            }, 1000); // Delay untuk memastikan script lain sudah jalan
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sortSelect = document.getElementById('sortSelect');
+
+            // Handle sort dropdown change
+            sortSelect.addEventListener('change', function() {
+                const sortValue = this.value;
+                const currentParams = new URLSearchParams(window.location.search);
+
+                // Remove existing sort_by parameter
+                currentParams.delete('sort_by');
+
+                // Add new sort_by parameter if value is not empty
+                if (sortValue && sortValue !== '') {
+                    currentParams.set('sort_by', sortValue);
+                }
+
+                // Build new URL
+                const newUrl = window.location.pathname + '?' + currentParams.toString();
+
+                // Navigate to new URL
+                window.location.href = newUrl.replace('?&', '?').replace(/\?$/, '');
+            });
+        });
+    </script>
 @endsection
