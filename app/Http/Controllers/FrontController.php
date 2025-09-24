@@ -20,24 +20,55 @@ class FrontController extends Controller
         $this->propertyService = $propertyService;
     }
 
-    public function index()
+   public function index(Request $request)
 {
     $data = $this->propertyService->getCategoriesAndCities();
-
     $agen = User::role('agen')->limit(3)->get();
-
-    $propertie = Property::where('status_active', 'Active')->paginate(6);
-
+    
+    // Get filter parameters
+    $statusFilter = $request->get('status');
+    $sortBy = $request->get('sort_by');
+    
+    // Build query
+    $query = Property::where('status_active', 'Active');
+    
+    // Apply status filter if provided
+    if ($statusFilter && in_array($statusFilter, ['Rent', 'Sale'])) {
+        if ($statusFilter === 'Rent') {
+            $query->where('status_listing', 'For Rent');
+        } elseif ($statusFilter === 'Sale') {
+            $query->where('status_listing', 'For Sale');
+        }
+    }
+    
+    // Apply sorting based on price
+    if ($sortBy && in_array($sortBy, ['price_asc', 'price_desc'])) {
+        if ($sortBy === 'price_asc') {
+            $query->orderBy('price', 'asc');
+        } elseif ($sortBy === 'price_desc') {
+            $query->orderBy('price', 'desc');
+        }
+    } else {
+        // Default sorting (latest first)
+        $query->latest();
+    }
+    
+    $propertie = $query->paginate(6);
+    
+    // Preserve query parameters in pagination links
+    $propertie->appends($request->query());
+    
     // Tambahkan pagination untuk blog dengan parameter berbeda
     $blog = Blog::latest()->paginate(6, ['*'], 'blog_page');
-
+    
     return view('front.index', array_merge($data, [
         'agen' => $agen,
         'propertie' => $propertie,
-        'blog' => $blog
+        'blog' => $blog,
+        'currentStatus' => $statusFilter, // Pass current filter to view
+        'currentSort' => $sortBy // Pass current sort to view
     ]));
 }
-
     public function search(Request $request)
     {
         $data = $this->propertyService->searchProperties($request->all());
@@ -234,5 +265,31 @@ class FrontController extends Controller
             'agen' => $agen,
             'propertie' => $propertie
         ]));
+    }
+
+    public function filterProperties(Request $request)
+    {
+        $statusFilter = $request->get('status');
+        
+        $query = Property::where('status_active', 'Active');
+        
+        if ($statusFilter && in_array($statusFilter, ['Rent', 'Sale'])) {
+            if ($statusFilter === 'Rent') {
+                $query->where('status_listing', 'For Rent');
+            } elseif ($statusFilter === 'Sale') {
+                $query->where('status_listing', 'For Sale');
+            }
+        }
+        
+        $propertie = $query->paginate(6);
+        $propertie->appends($request->query());
+        
+        // Return partial view for AJAX
+        $html = view('partials.property-list', compact('propertie'))->render();
+        
+        return response()->json([
+            'html' => $html,
+            'pagination' => $propertie->links()->render()
+        ]);
     }
 }
