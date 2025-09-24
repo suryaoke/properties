@@ -59,7 +59,7 @@ class FrontController extends Controller
     $propertie->appends($request->query());
     
     // Tambahkan pagination untuk blog dengan parameter berbeda
-    $blog = Blog::latest()->paginate(6, ['*'], 'blog_page');
+    $blog = Blog::latest()->paginate(3, ['*'], 'blog_page');
     
     return view('front.index', array_merge($data, [
         'agen' => $agen,
