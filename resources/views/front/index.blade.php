@@ -281,7 +281,12 @@
                 </div>
             </div>
             <div class="row">
+
                 @forelse ($blog as $blogs)
+                    @php
+
+                        $shortDescription = Illuminate\Support\Str::words($blogs->info, 15, '...');
+                    @endphp
                     <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="100">
                         <a href="{{ route('front.blog', $blogs->slug) }}">
                             <img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image" class="img-fluid">
@@ -289,7 +294,13 @@
                                 <span
                                     class="d-block text-secondary small text-uppercase">{{ $blogs->created_at->format('d M Y') }}</span>
                                 <h2 class="h5 text-black mb-3">{{ $blogs->title }}</h2>
-                                <p>{{ $blogs->info }}</p>
+                                @if (Str::wordCount($blogs->info) > 15)
+                                    <p>{{ $shortDescription }} <a
+                                            href="{{ route('front.blog', $blogs->slug) }}">Selengkapnya</a></p>
+                                @else
+                                    <p>{{ $blogs->info }}</p>
+                                @endif
+
                             </div>
                         </a>
                     </div>
