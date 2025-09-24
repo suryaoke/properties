@@ -158,7 +158,8 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <input type="email" placeholder="Email" name="email" value="{{ old('email') }}"
+                                <input type="email" placeholder="Email Address*" required name="email"
+                                    value="{{ old('email') }}"
                                     class="form-control @error('email') ring-2 ring-red-500 @enderror">
                                 @error('email')
                                     <p class="text-red-500 text-sm mt-1 px-4">{{ $message }}</p>
