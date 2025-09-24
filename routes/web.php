@@ -20,6 +20,8 @@ Route::get('/about', [FrontController::class, 'about'])->name('front.about');
 
 Route::get('/blog', [FrontController::class, 'blogAll'])->name('front.blog.all');
 
+Route::get('/filter-properties', [FrontController::class, 'filterProperties'])->name('front.filter');
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
