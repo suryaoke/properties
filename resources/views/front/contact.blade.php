@@ -45,7 +45,7 @@
                               <div class="col-md-12">
 
                                   <input type="email" id="email" name="email" class="form-control"
-                                      placeholder="Email Address">
+                                      placeholder="Email Address*" required>
                               </div>
                           </div>
                           <div class="row form-group">
