@@ -1,8 +1,23 @@
 @extends('layouts.master')
 @section('title', 'Detail Property')
 @section('content')
+    <div id="notification-container" class="notification-container">
+        @if (session('success'))
+            <div class="alert alert-success notification-alert" id="success-notification">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger notification-alert" id="error-notification">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {{ session('error') }}
+            </div>
+        @endif
+    </div>
 
     <x-nav-property :about="$about" />
+
     <div class="site-section site-section-sm">
         <div class="container">
             <div class="row">
@@ -23,7 +38,7 @@
                     <div class="bg-white property-body border-bottom border-left border-right">
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                 <div class="offer-type-wrap">
+                                <div class="offer-type-wrap">
                                     @if ($property->status_listing === 'For Rent')
                                         <span class="offer-type bg-danger"> {{ $property->status_listing }}</span>
                                     @elseif($property->status_listing === 'For Sale')
@@ -35,7 +50,7 @@
                                     @endif
                                 </div>
                                 <strong class="h3 mb-3">
-                                    {{ $property->name }}</strong>  <br>
+                                    {{ $property->name }}</strong> <br>
                                 <strong class="text-success h3 mb-3">Rp
                                     {{ number_format($property->price, 0, ',', '.') }}</strong>
                             </div>
@@ -135,7 +150,8 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <input type="tel" placeholder="Your Phone *" name="phone" value="{{ old('phone') }}"
+                                <input type="tel" placeholder="Your Phone *" name="phone"
+                                    value="{{ old('phone') }}"
                                     class="form-control @error('phone') ring-2 ring-red-500 @enderror" required>
                                 @error('phone')
                                     <p class="text-red-500 text-sm mt-1 px-4">{{ $message }}</p>
@@ -152,7 +168,7 @@
                                 <input value="{{ $property->name }}" readonly class="form-control bg-gray-100" />
                             </div>
                             <div class="form-group">
-                                <textarea name="message" placeholder="Message" rows="4"
+                                <textarea name="message" placeholder="Message*" rows="4" required
                                     class="form-control resize-none @error('message') ring-2 ring-red-500 @enderror">{{ old('message') }}</textarea>
                                 @error('message')
                                     <p class="text-red-500 text-sm mt-1 px-4">{{ $message }}</p>
@@ -167,7 +183,7 @@
                     <div class="bg-white widget border rounded">
                         <h3 class="h4 text-black widget-title mb-3">Paragraph</h3>
                         <p>
-                           {{ $property->paragraph }}
+                            {{ $property->paragraph }}
                         </p>
                     </div>
                 </div>
@@ -251,6 +267,133 @@
     </div>
 
     <x-footer-property :about="$about" />
+    <style>
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: 350px;
+        }
 
+        .notification-alert {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            animation: slideInRight 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification-alert.alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .notification-alert.alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .notification-alert::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: #28a745;
+            animation: progressBar 3s linear;
+        }
+
+        .notification-alert.alert-danger::before {
+            background: #dc3545;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes progressBar {
+            from {
+                width: 100%;
+            }
+
+            to {
+                width: 0%;
+            }
+        }
+
+        .notification-fade-out {
+            animation: slideOutRight 0.3s ease-in forwards;
+        }
+
+        /* Responsive untuk mobile */
+        @media (max-width: 768px) {
+            .notification-container {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            .notification-alert {
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto hide notifications after 3 seconds
+            const notifications = document.querySelectorAll('.notification-alert');
+
+            notifications.forEach(function(notification) {
+                // Add click to close functionality
+                notification.style.cursor = 'pointer';
+                notification.addEventListener('click', function() {
+                    hideNotification(this);
+                });
+
+                // Auto hide after 3 seconds
+                setTimeout(function() {
+                    hideNotification(notification);
+                }, 3000);
+            });
+
+            function hideNotification(element) {
+                element.classList.add('notification-fade-out');
+                setTimeout(function() {
+                    if (element && element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                }, 300);
+            }
+        });
+    </script>
 
 @endsection
