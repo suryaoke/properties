@@ -1,12 +1,20 @@
+   @php
+       use Illuminate\Support\Str;
+       $shortDescription = Str::words($about->description, 10, '...');
+   @endphp
    <footer class="site-footer">
        <div class="container">
            <div class="row">
                <div class="col-lg-4">
                    <div class="mb-5">
                        <h3 class="footer-heading mb-4">{{ $about->title }}</h3>
-                       <p>{{$about->description}}</p>
-                        <p> {{ $about->address }} </p>
-                        <p>{{ $about->phone }}</p>
+                       @if (Str::wordCount($about->description) > 10)
+                           <p>{{ $shortDescription }} <a href="{{ route('front.about') }}">Selengkapnya</a></p>
+                       @else
+                           <p>{{ $about->description }}</p>
+                       @endif
+                       <p> {{ $about->address }} </p>
+                       <p>{{ $about->phone }}</p>
                    </div>
 
 
