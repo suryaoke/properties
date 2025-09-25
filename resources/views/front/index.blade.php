@@ -277,7 +277,7 @@
                     <div class="site-section-title">
                         <h2>Recent Blog</h2>
                     </div>
-                    <p>Stay updated with our latest news and insights</p>
+                    <p> {{$about->keterangan_blog}} </p>
                 </div>
             </div>
             <div class="row">
