@@ -64,6 +64,9 @@ class AboutResource extends Resource
                         Forms\Components\Textarea::make('deskripsi_agen')
                             ->label('Deskripsi Agen')
                             ->nullable(),
+                        Forms\Components\Textarea::make('keterangan_blog')
+                            ->label('Deskripsi Blog')
+                            ->nullable(),
                         Forms\Components\FileUpload::make('photo')
                             ->label('Gambar Logo')
                             ->image()
@@ -102,6 +105,7 @@ class AboutResource extends Resource
                 Tables\Columns\TextColumn::make('instagram')->label('Instagram')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('linkedin')->label('Linkedin')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('deskripsi_agen')->label('Deskripsi Agen')->searchable()->sortable(),
+                   Tables\Columns\TextColumn::make('keterangan_blog')->label('keterangan Blog')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('address')->label('Alamat')->searchable()->sortable(),
 
             ])
