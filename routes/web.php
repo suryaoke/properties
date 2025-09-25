@@ -138,4 +138,21 @@ Route::get('/storage/blog/{filename}', function ($filename) {
         'Cache-Control' => 'public, max-age=31536000', // Cache 1 tahun
     ]);
 })->where('filename', '.*');
+
+Route::get('/storage/why/{filename}', function ($filename) {
+    // Path yang benar sesuai dengan lokasi file Anda
+    $path = base_path('storage/why/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    // Set header yang tepat untuk SVG
+    $mimeType = mime_content_type($path);
+
+    return response()->file($path, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000', // Cache 1 tahun
+    ]);
+})->where('filename', '.*');
 require __DIR__ . '/auth.php';
