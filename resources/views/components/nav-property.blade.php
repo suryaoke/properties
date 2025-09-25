@@ -1,3 +1,32 @@
+     <style>
+         .btn-iklan {
+             display: inline-block;
+             font-weight: bold;
+             animation: bounce 1s infinite;
+             height: 40px;
+             line-height: 40px;
+             /* teks biar pas di tengah */
+             padding: 0 15px;
+             /* spasi kanan-kiri */
+             border-radius: 6px;
+             /* biar tombol lebih halus */
+             text-align: center;
+             /* teks rata tengah */
+             cursor: pointer;
+         }
+
+         @keyframes bounce {
+
+             0%,
+             100% {
+                 transform: translateY(0);
+             }
+
+             50% {
+                 transform: translateY(-8px);
+             }
+         }
+     </style>
      <div class="site-loader"></div>
 
      <div class="site-wrap">
@@ -34,6 +63,13 @@
                                  <li><a href="{{ route('front.blog.all') }}">Blog</a></li>
                                  <li><a href="{{ route('front.about') }}">About</a></li>
                                  <li><a href="{{ route('front.contact') }}">Contact</a></li>
+                                 <li>
+                                     <span
+                                         class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded btn-iklan">
+                                         Pasang Iklan
+                                     </span>
+                                 </li>
+
                              </ul>
                          </nav>
                      </div>
