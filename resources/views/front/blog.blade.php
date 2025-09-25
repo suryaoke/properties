@@ -12,7 +12,7 @@
                     <div class="site-section-title">
                         <h2>Recent Blog</h2>
                     </div>
-                    <p>p</p>
+                    <p> {{$about->keterangan_blog}} </p>
                 </div>
             </div>
 
