@@ -21,7 +21,7 @@ class WhyResource extends Resource
     protected static ?string $navigationLabel = 'Why'; // ubah nama di menu
     protected static ?string $pluralLabel = 'Why'; // judul di list
     protected static ?string $label = 'Why';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
 
     public static function form(Form $form): Form
     {
