@@ -230,21 +230,26 @@
                     <div class="site-section-title">
                         <h2>Why Choose Us?</h2>
                     </div>
-                    <p> {{$about->keterangan_why}} </p>
+                    <p> {{ $about->keterangan_why }} </p>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 col-lg-4">
-                    <a href="#" class="service text-center">
-                        <span class="icon flaticon-house"></span>
-                        <h2 class="service-heading">Research Subburbs</h2>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt iure qui natus perspiciatis ex
-                            odio molestia.</p>
-                        <p><span class="read-more">Read More</span></p>
-                    </a>
-                </div>
+             <div class="row">
+                @forelse ($why as $whys)
+                    <div class="col-md-6 col-lg-4 service text-center">
+                        <span class="icon">
+                            <img src="{{ Storage::url($whys->photo ?? '') }}" 
+                                alt="logo"
+                                style="width:60px; height:60px; object-fit:contain;">
+                        </span>
+                        <h2 class="service-heading"> {{$whys->title}} </h2>
+                        <p> {{$whys->info}} </p>
+                    </div>
+                @empty
+                    <p>No Data</p>
+                @endforelse
             </div>
+
         </div>
     </div>
 
@@ -257,7 +262,7 @@
                     <div class="site-section-title">
                         <h2>Recent Blog</h2>
                     </div>
-                    <p> {{$about->keterangan_blog}} </p>
+                    <p> {{ $about->keterangan_blog }} </p>
                 </div>
             </div>
             <div class="row">
