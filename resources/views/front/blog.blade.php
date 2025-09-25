@@ -12,7 +12,7 @@
                     <div class="site-section-title">
                         <h2>Recent Blog</h2>
                     </div>
-                    <p> {{$about->keterangan_blog}} </p>
+                    <p> {{ $about->keterangan_blog }} </p>
                 </div>
             </div>
 
@@ -22,21 +22,23 @@
                         $shortDescription = Illuminate\Support\Str::words($blogs->info, 15, '...');
                     @endphp
                     <div class="col-md-6 col-lg-4 mb-5" data-aos="fade-up" data-aos-delay="100">
-                        <a href="{{ route('front.blog', $blogs->slug) }}">
-                            <img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image" class="img-fluid">
-                            <div class="p-4 bg-white">
-                                <span class="d-block text-secondary small text-uppercase">
-                                    {{ $blogs->created_at->format('d M Y') }}
-                                </span>
-                                <h2 class="h5 text-black mb-3">{{ $blogs->title }}</h2>
-                                @if (Str::wordCount($blogs->info) > 15)
-                                    <p>{{ $shortDescription }} <a
-                                            href="{{ route('front.blog', $blogs->slug) }}">Selengkapnya</a></p>
-                                @else
-                                    <p>{{ $blogs->info }}</p>
-                                @endif
-                            </div>
-                        </a>
+
+                        <img src="{{ Storage::url($blogs->photo ?? '') }}" alt="Image" class="img-fluid">
+                        <div class="p-4 bg-white">
+                            <span class="d-block text-secondary small text-uppercase">
+                                {{ $blogs->created_at->format('d M Y') }}
+                            </span>
+                            <h2 class="h5 text-black mb-3">{{ $blogs->title }}</h2>
+                            @if (Str::wordCount($blogs->info) > 15)
+                                <p>{{ $shortDescription }} </p>
+                                <a href="{{ route('front.blog', $blogs->slug) }}" class="text-center">
+                                    <p><span class="read-more">Read More</span></p>
+                                </a>
+                            @else
+                                <p>{{ $blogs->info }}</p>
+                            @endif
+                        </div>
+
                     </div>
                 @empty
                     <div class="col-12">
