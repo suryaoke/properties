@@ -19,6 +19,7 @@ class About extends Model
         'linkedin',
         'deskripsi_agen',
         'gambar',
-        'keterangan_blog'
+        'keterangan_blog',
+        'keterangan_why'
     ];
 }
