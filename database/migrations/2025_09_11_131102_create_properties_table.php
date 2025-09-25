@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('thumbnail')->nullable();
             $table->text('certificate')->nullable();
             $table->text('about')->nullable();
-            $table->integer('price')->nullable();
+            $table->string('price')->nullable();
             $table->integer('bedrooms')->nullable();
             $table->integer('bathrooms')->nullable();
             $table->integer('electric')->nullable();
