@@ -29,6 +29,8 @@ class PropertyResource extends Resource
 
     // protected static ?string $navigationIcon = 'heroicon-o-home-modern';
 
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -230,13 +232,18 @@ class PropertyResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): Builder
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()
+    //         ->withoutGlobalScopes([
+    //             SoftDeletingScope::class,
+    //         ]);
+    // }
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+        return parent::getEloquentQuery()->whereNull('jenis');
     }
+
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()?->can('view_any_property');

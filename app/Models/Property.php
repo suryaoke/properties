@@ -27,7 +27,12 @@ class Property extends Model
             'map',
             'status_listing',
             'status_active',
-            'paragraph'
+            'paragraph',
+            'jenis',
+            'name_iklan',
+            'phone_iklan',
+            'email_iklan',
+            'status_iklan',
         ];
     public function setNameAttribute($value)
     {

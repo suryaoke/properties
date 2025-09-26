@@ -3,25 +3,21 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ManageCustomerResource\Pages;
-use App\Filament\Resources\ManageCustomerResource\RelationManagers;
 use App\Models\ManageCustomer;
-use App\Models\Property;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
 
 class ManageCustomerResource extends Resource
 {
     protected static ?string $model = ManageCustomer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-    protected static ?string $navigationLabel = 'Konsumen'; // ubah nama di menu
-    protected static ?string $pluralLabel = 'Kelola Konsumen'; // judul di list
+    protected static ?string $navigationLabel = 'Konsumen';
+    protected static ?string $pluralLabel = 'Kelola Konsumen';
     protected static ?string $label = 'Kelola Konsumen';
 
     public static function form(Form $form): Form
@@ -70,16 +66,16 @@ class ManageCustomerResource extends Resource
                 Tables\Columns\TextColumn::make('properties.name')->label('Properti')->searchable()->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->formatStateUsing(fn($state) => match ($state) {
                         'new' => 'Baru',
                         'in_progress' => 'Dalam Proses',
                         'completed' => 'Selesai',
-                        default => $state, // fallback kalau ada status lain
+                        default => $state,
                     })
                     ->colors([
-                        'primary' => fn ($state) => $state === 'new',
-                        'warning' => fn ($state) => $state === 'in_progress',
-                        'success' => fn ($state) => $state === 'completed',
+                        'primary' => fn($state) => $state === 'new',
+                        'warning' => fn($state) => $state === 'in_progress',
+                        'success' => fn($state) => $state === 'completed',
                     ])
                     ->searchable()
                     ->sortable(),
@@ -96,67 +92,36 @@ class ManageCustomerResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->form([
-                        Forms\Components\Section::make('Informasi Customer')
-                            ->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Nama')
-                                    ->disabled(),
-                                Forms\Components\TextInput::make('email')
-                                    ->label('Email')
-                                    ->disabled(),
-                                Forms\Components\TextInput::make('phone')
-                                    ->label('Telepon')
-                                    ->disabled(),
-                                Forms\Components\Textarea::make('message')
-                                    ->label('Pesan')
-                                    ->disabled(),
-                                Forms\Components\TextInput::make('properties.name')
-                                    ->label('Properti')
-                                    ->disabled(),
-                                Forms\Components\Select::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'new' => 'Baru',
-                                        'in_progress' => 'Dalam Proses',
-                                        'completed' => 'Selesai',
-                                    ])
-                                    ->disabled(),
-                                Forms\Components\TextInput::make('created_at')
-                                    ->label('Dibuat')
-                                    ->disabled(),
-                                Forms\Components\TextInput::make('updated_at')
-                                    ->label('Diubah')
-                                    ->disabled(),
-                            ])->columns(2),
-                    ])
-                    ->modalActions([
-                        // Tombol default Close
-                        Tables\Actions\Action::make('close')
-                            ->label('Tutup')
-                            ->color('secondary')
-                            ->action(fn () => null),
-
-                        // Tombol View Properti yang membuka modal baru
-                        Tables\Actions\Action::make('view_property')
-                            ->label('View Properti')
-                            ->color('primary')
-                            ->icon('heroicon-o-home-modern')
-                            ->visible(fn ($record) => $record->properties !== null)
-                            ->form(fn ($record) => self::getPropertyViewForm($record->properties))
-                            ->modalHeading(fn ($record) => 'Detail Properti: ' . $record->properties->name)
-                            ->modalWidth('7xl')
-                            ->modalActions([
-                                Tables\Actions\Action::make('close_property')
-                                    ->label('Tutup')
-                                    ->color('secondary'),
-                            ]),
-                    ])
-                    ->modalWidth('5xl'),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+
+                // Tombol WhatsApp
+                Action::make('whatsapp')
+                    ->label('WhatsApp')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->color('success')
+                    ->url(
+                        fn($record) => ($number = self::formatPhoneForWhatsApp($record->phone))
+                            ? 'https://wa.me/' . $number
+                            : null,
+                        shouldOpenInNewTab: true
+                    )
+                    ->visible(fn($record) => !empty($record->phone) && self::formatPhoneForWhatsApp($record->phone) !== null),
+
+                // Tombol Telepon
+                Action::make('call')
+                    ->label('Telepon')
+                    ->icon('heroicon-o-phone')
+                    ->color('primary')
+                    ->url(
+                        fn($record) => ($number = self::formatPhoneForWhatsApp($record->phone))
+                            ? 'tel:' . $number
+                            : null
+                    )
+                    ->visible(fn($record) => !empty($record->phone) && self::formatPhoneForWhatsApp($record->phone) !== null),
             ])
+
             ->actionsColumnLabel('Aksi')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -165,94 +130,46 @@ class ManageCustomerResource extends Resource
             ]);
     }
 
-    public static function getPropertyViewForm($property): array
+    /**
+     * Normalisasi nomor HP untuk WA (E.164)
+     */
+    private static function formatPhoneForWhatsApp(?string $phone): ?string
     {
-        if (!$property) {
-            return [
-                Forms\Components\Placeholder::make('no_property')
-                    ->label('Tidak ada properti yang terkait')
-                    ->content('Customer ini belum memilih properti.')
-            ];
+        if (empty($phone)) {
+            return null;
         }
 
-        return [
-            Forms\Components\Section::make('Informasi Properti')
-                ->schema([
-                    Forms\Components\TextInput::make('property_thumbnail')
-                        ->label('Thumbnail')
-                        ->disabled()
-                        ->default($property->thumbnail ?? 'Tidak ada thumbnail'),
-                    Forms\Components\TextInput::make('property_name')
-                        ->label('Nama Properti')
-                        ->disabled()
-                        ->default($property->name ?? 'Tidak ada nama'),
-                    Forms\Components\TextInput::make('property_price')
-                        ->label('Harga')
-                        ->disabled()
-                        ->prefix('IDR')
-                        ->default($property->price ? number_format($property->price, 0, ',', '.') : 'Tidak ada harga'),
-                    Forms\Components\TextInput::make('property_type')
-                        ->label('Tipe Properti')
-                        ->disabled()
-                        ->default($property->propertyType?->name ?? 'Tidak ada tipe'),
-                    Forms\Components\TextInput::make('property_category')
-                        ->label('Kategori')
-                        ->disabled()
-                        ->default($property->category?->name ?? 'Tidak ada kategori'),
-                    Forms\Components\TextInput::make('property_city')
-                        ->label('Kota')
-                        ->disabled()
-                        ->default($property->city?->name ?? 'Tidak ada kota'),
-                ])->columns(2),
+        // Hapus semua karakter non-digit
+        $digits = preg_replace('/\D+/', '', $phone);
+        if (empty($digits)) {
+            return null;
+        }
 
-            Forms\Components\Section::make('Detail Properti')
-                ->schema([
-                    Forms\Components\Textarea::make('property_address')
-                        ->label('Alamat')
-                        ->disabled()
-                        ->default($property->address ?? 'Tidak ada alamat'),
-                    Forms\Components\Textarea::make('property_about')
-                        ->label('Deskripsi')
-                        ->disabled()
-                        ->default($property->about ?? 'Tidak ada deskripsi'),
-                    Forms\Components\TextInput::make('property_certificate')
-                        ->label('Sertifikat')
-                        ->disabled()
-                        ->default($property->certificate ?? 'Tidak ada sertifikat'),
-                    Forms\Components\TextInput::make('property_bedrooms')
-                        ->label('Kamar Tidur')
-                        ->disabled()
-                        ->suffix('Unit')
-                        ->default($property->bedrooms ?? 0),
-                    Forms\Components\TextInput::make('property_bathrooms')
-                        ->label('Kamar Mandi')
-                        ->disabled()
-                        ->suffix('Unit')
-                        ->default($property->bathrooms ?? 0),
-                    Forms\Components\TextInput::make('property_land_area')
-                        ->label('Luas Tanah')
-                        ->disabled()
-                        ->suffix('m²')
-                        ->default($property->land_area ?? 0),
-                    Forms\Components\TextInput::make('property_building_area')
-                        ->label('Luas Bangunan')
-                        ->disabled()
-                        ->suffix('m²')
-                        ->default($property->building_area ?? 0),
-                    Forms\Components\TextInput::make('property_electric')
-                        ->label('Daya Listrik')
-                        ->disabled()
-                        ->suffix('Watt')
-                        ->default($property->electric ?? 0),
-                ])->columns(2),
-        ];
+        // Hapus leading 00 jika ada
+        $digits = preg_replace('/^00+/', '', $digits);
+
+        if (str_starts_with($digits, '62')) {
+            $normalized = $digits;
+        } elseif (str_starts_with($digits, '0')) {
+            $normalized = '62' . substr($digits, 1);
+        } elseif (str_starts_with($digits, '8')) {
+            $normalized = '62' . $digits;
+        } else {
+            $normalized = $digits;
+        }
+
+        // Validasi panjang (E.164 max 15 digit)
+        $len = strlen($normalized);
+        if ($len < 8 || $len > 15) {
+            return null;
+        }
+
+        return $normalized;
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

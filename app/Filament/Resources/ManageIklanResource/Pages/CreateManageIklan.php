@@ -9,4 +9,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateManageIklan extends CreateRecord
 {
     protected static string $resource = ManageIklanResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
