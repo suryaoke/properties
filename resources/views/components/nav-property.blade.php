@@ -64,10 +64,12 @@
                                  <li><a href="{{ route('front.about') }}">About</a></li>
                                  <li><a href="{{ route('front.contact') }}">Contact</a></li>
                                  <li>
+                                    <a href="{{ route('front.iklan') }}">
                                      <span
                                          class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded btn-iklan">
                                          Pasang Iklan
                                      </span>
+                                     </a>
                                  </li>
 
                              </ul>

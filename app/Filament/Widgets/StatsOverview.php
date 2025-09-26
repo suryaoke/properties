@@ -11,11 +11,11 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $count_konsumen = \App\Models\ManageCustomer::count();
-        $count_property = \App\Models\Property::count();
+        $count_property = \App\Models\Property::whereNull('Jenis')->count();
         $count_category = \App\Models\Category::count();
         $count_city = \App\Models\City::count();
         $count_facility = \App\Models\Facility::count();
-
+    $count_iklan = \App\Models\Property::where('Jenis', 'Iklan')->count();
         $user = Auth::user();
 
         // jika role agen -> hanya Konsumen & Properti
@@ -33,6 +33,7 @@ class StatsOverview extends BaseWidget
             Stat::make('Kategori', $count_category),
             Stat::make('Kota', $count_city),
             Stat::make('Fasilitas', $count_facility),
+            Stat::make('Iklan', $count_iklan),
         ];
     }
 }

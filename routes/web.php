@@ -23,9 +23,10 @@ Route::get('/blog', [FrontController::class, 'blogAll'])->name('front.blog.all')
 Route::get('/filter-properties', [FrontController::class, 'filterProperties'])->name('front.filter');
 
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/iklan', [FrontController::class, 'iklan'])->name('front.iklan');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
