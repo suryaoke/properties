@@ -113,7 +113,7 @@ class PropertyResource extends Resource
                         Forms\Components\TextInput::make('map')
                             ->label('Peta (Map)')
                             ->placeholder('Masukkan embed code dari Google Maps')
-                            ->helperText('Dapatkan kode embed dari Google Maps dengan memilih "Share" > "Embed a map" > Salin kode HTML yang disediakan.')
+                            ->helperText('Dapatkan kode embed dari Google Maps dengan memilih "Share" > "Embed a map" > Salin kode (Https://..) nya saja')
                             ->columnSpanFull(),
 
 
