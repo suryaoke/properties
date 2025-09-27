@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         // Ambil data dari tabel 'about'
-        // $about = About::first();
+        $about = About::first();
         $brandName = $about?->title ?? 'Properti';
         $brandLogo = $about?->photo ?? null;
 
@@ -73,6 +73,11 @@ class AdminPanelProvider extends PanelProvider
             //         <span style="font-weight: 600; color: rgb(55 65 81);">' . $brandName . '</span>
             //     </div>
             // '))
+            ->favicon(
+                $brandLogo
+                    ? asset('storage/' . $brandLogo)
+                    : asset('images/default-favicon.png')
+            )
 
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([])
