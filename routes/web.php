@@ -24,6 +24,8 @@ Route::get('/filter-properties', [FrontController::class, 'filterProperties'])->
 
 
 Route::get('/iklan', [FrontController::class, 'iklan'])->name('front.iklan');
+
+Route::post('/iklan/store', [FrontController::class, 'store'])->name('iklan.store');
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
