@@ -7,10 +7,17 @@ use App\Models\Blog;
 use App\Models\Why;
 use App\Models\Category;
 use App\Models\Property;
+use App\Models\PropertyType;
 use App\Models\User;
 use App\Models\ManageCustomer;
 use App\Services\PropertyService;
 use Illuminate\Http\Request;
+use App\Models\City;
+use App\Models\Facility;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use App\Models\PropertyPhoto;
+use App\Models\PropertyFacility;
 
 class FrontController extends Controller
 {
@@ -31,8 +38,11 @@ class FrontController extends Controller
         $sortBy = $request->get('sort_by');
 
         // Build query
-        $query = Property::where('status_active', 'Active');
-
+        $query = Property::where('status_active', 'Active')
+            ->where(function ($q) {
+                $q->whereNull('status_iklan')
+                ->orWhere('status_iklan', 'Active');
+            });
         // Apply status filter if provided
         if ($statusFilter && in_array($statusFilter, ['Rent', 'Sale'])) {
             if ($statusFilter === 'Rent') {
@@ -425,19 +435,134 @@ class FrontController extends Controller
     }
 
 
-    public function iklan(Property $property)
+    public function iklan()
     {
-        $property = $this->propertyService->getPropertyDetails($property);
+
+        $propertyTypes = PropertyType::all();
+        $categories = Category::all();
+        $cities = City::all();
+        $facilities = Facility::all();
         $about = About::first();
-        $agen = User::role('agen')->first();
 
+        return view('front.iklan', compact('about','propertyTypes', 'categories', 'cities', 'facilities'));
+  
+    }
 
-        $propertyRelated = Property::where('category_id', $property->category_id)
-            ->where('id', '!=', $property->id)
-            ->where('status_active', 'Active')
-            ->limit(4)
-            ->get();
+    public function store(Request $request)
+    {
+        // Validasi data
+        $request->validate([
+            // Data pengiklan
+            'name_iklan' => 'required|string|max:255',
+            'email_iklan' => 'required|email|max:255',
+            'phone_iklan' => 'required|string|max:20',
+            
+            // Data properti
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'property_type_id' => 'required|exists:property_types,id',
+            'category_id' => 'required|exists:categories,id',
+            'city_id' => 'required|exists:cities,id',
+            'address' => 'required|string',
+            'about' => 'required|string',
+            'paragraph' => 'nullable|string',
+            'status_listing' => 'required|in:For Sale,For Rent',
+            
+            // Data tambahan
+            'certificate' => 'nullable|in:SHM,HGB,IMB,Lainnya',
+            'bedrooms' => 'nullable|integer|min:0',
+            'bathrooms' => 'nullable|integer|min:0',
+            'electric' => 'nullable|integer|min:0',
+            'land_area' => 'nullable|numeric|min:0',
+            'building_area' => 'nullable|numeric|min:0',
+            'map' => 'nullable|string',
+            
+            // File upload
+            'thumbnail' => 'required|image|mimes:jpeg,jpg,png,gif|max:1024',
+            'photos.*' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+            
+            // Fasilitas
+            'facilities' => 'nullable|array',
+            'facilities.*' => 'exists:facilities,id',
+        ]);
 
-        return view('front.iklan', compact('property', 'about', 'agen', 'propertyRelated'));
+        DB::beginTransaction();
+        
+        try {
+            // Upload thumbnail
+            $thumbnailPath = null;
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailPath = $request->file('thumbnail')->store('properties', 'direct_storage');
+            }
+
+            // Buat property baru
+            $property = Property::create([
+                // Data pengiklan
+                'name_iklan' => $request->name_iklan,
+                'email_iklan' => $request->email_iklan,
+                'phone_iklan' => $request->phone_iklan,
+                'status_iklan' => 'Inactive', // Default status untuk iklan baru
+                
+                // Data properti
+                'jenis' => 'Iklan',
+                'name' => $request->name,
+                'price' => $request->price,
+                'property_type_id' => $request->property_type_id,
+                'category_id' => $request->category_id,
+                'city_id' => $request->city_id,
+                'address' => $request->address,
+                'about' => $request->about,
+                'paragraph' => $request->paragraph,
+                'status_listing' => $request->status_listing,
+                'status_active' => 'Inactive', // Default inactive sampai disetujui admin
+                'thumbnail' => $thumbnailPath,
+                
+                // Data tambahan
+                'certificate' => $request->certificate,
+                'bedrooms' => $request->bedrooms,
+                'bathrooms' => $request->bathrooms,
+                'electric' => $request->electric,
+                'land_area' => $request->land_area,
+                'building_area' => $request->building_area,
+                'map' => $request->map,
+            ]);
+
+            // Upload foto tambahan
+            if ($request->hasFile('photos')) {
+                foreach ($request->file('photos') as $photo) {
+                    $photoPath = $photo->store('properties', 'direct_storage');
+                    PropertyPhoto::create([
+                        'property_id' => $property->id,
+                        'photo' => $photoPath,
+                    ]);
+                }
+            }
+
+            // Simpan fasilitas
+            if ($request->has('facilities') && is_array($request->facilities)) {
+                foreach ($request->facilities as $facilityId) {
+                    PropertyFacility::create([
+                        'property_id' => $property->id,
+                        'facility_id' => $facilityId,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Iklan berhasil dibuat! Menunggu persetujuan admin.');
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            // Hapus file yang sudah diupload jika ada error
+            if ($thumbnailPath) {
+                Storage::disk('direct_storage')->delete($thumbnailPath);
+            }
+            
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat membuat iklan. Silakan coba lagi.')
+                ->withInput();
+        }
     }
 }
