@@ -22,17 +22,20 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8">
-                    <form method="POST" action="{{ route('iklan.store') }}" class="p-5 bg-white border" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('iklan.store') }}" class="p-5 bg-white border"
+                        enctype="multipart/form-data">
                         @csrf
-                        
+
                         <!-- Basic Information -->
                         <h4 class="text-black mb-4">Informasi Dasar Properti</h4>
-                        
+
                         <div class="row form-group">
                             <div class="col-md-12 mb-3">
-                                <label for="name" class="text-black">Nama Properti <span class="text-danger">*</span></label>
-                                <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror"
-                                    placeholder="Nama Properti" value="{{ old('name') }}" required>
+                                <label for="name" class="text-black">Nama Properti <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" id="name" name="name"
+                                    class="form-control @error('name') is-invalid @enderror" placeholder="Nama Properti"
+                                    value="{{ old('name') }}" required>
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -46,19 +49,24 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">Rp</span>
                                     </div>
-                                    <input type="number" id="price" name="price" class="form-control @error('price') is-invalid @enderror"
-                                        placeholder="0" value="{{ old('price') }}" required>
+                                    <input type="number" id="price" name="price"
+                                        class="form-control @error('price') is-invalid @enderror" placeholder="0"
+                                        value="{{ old('price') }}" required>
                                 </div>
                                 @error('price')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="status_listing" class="text-black">Status Listing <span class="text-danger">*</span></label>
-                                <select name="status_listing" id="status_listing" class="form-control @error('status_listing') is-invalid @enderror" required>
+                                <label for="status_listing" class="text-black">Status Listing <span
+                                        class="text-danger">*</span></label>
+                                <select name="status_listing" id="status_listing"
+                                    class="form-control @error('status_listing') is-invalid @enderror" required>
                                     <option value="" hidden disabled selected>Pilih Status</option>
-                                    <option value="For Sale" {{ old('status_listing') == 'For Sale' ? 'selected' : '' }}>For Sale</option>
-                                    <option value="For Rent" {{ old('status_listing') == 'For Rent' ? 'selected' : '' }}>For Rent</option>
+                                    <option value="For Sale" {{ old('status_listing') == 'For Sale' ? 'selected' : '' }}>For
+                                        Sale</option>
+                                    <option value="For Rent" {{ old('status_listing') == 'For Rent' ? 'selected' : '' }}>For
+                                        Rent</option>
                                 </select>
                                 @error('status_listing')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -68,11 +76,14 @@
 
                         <div class="row form-group">
                             <div class="col-md-4 mb-3">
-                                <label for="property_type_id" class="text-black">Tipe Properti <span class="text-danger">*</span></label>
-                                <select name="property_type_id" id="property_type_id" class="form-control @error('property_type_id') is-invalid @enderror" required>
+                                <label for="property_type_id" class="text-black">Tipe Properti <span
+                                        class="text-danger">*</span></label>
+                                <select name="property_type_id" id="property_type_id"
+                                    class="form-control @error('property_type_id') is-invalid @enderror" required>
                                     <option value="" hidden disabled selected>Pilih Tipe Properti</option>
-                                    @foreach($propertyTypes as $type)
-                                        <option value="{{ $type->id }}" {{ old('property_type_id') == $type->id ? 'selected' : '' }}>
+                                    @foreach ($propertyTypes as $type)
+                                        <option value="{{ $type->id }}"
+                                            {{ old('property_type_id') == $type->id ? 'selected' : '' }}>
                                             {{ $type->name }}
                                         </option>
                                     @endforeach
@@ -82,11 +93,14 @@
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="category_id" class="text-black">Kategori <span class="text-danger">*</span></label>
-                                <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror" required>
+                                <label for="category_id" class="text-black">Kategori <span
+                                        class="text-danger">*</span></label>
+                                <select name="category_id" id="category_id"
+                                    class="form-control @error('category_id') is-invalid @enderror" required>
                                     <option value="" hidden disabled selected>Pilih Kategori</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}"
+                                            {{ old('category_id') == $category->id ? 'selected' : '' }}>
                                             {{ $category->name }}
                                         </option>
                                     @endforeach
@@ -97,10 +111,12 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="city_id" class="text-black">Kota <span class="text-danger">*</span></label>
-                                <select name="city_id" id="city_id" class="form-control @error('city_id') is-invalid @enderror" required>
+                                <select name="city_id" id="city_id"
+                                    class="form-control @error('city_id') is-invalid @enderror" required>
                                     <option value="" hidden disabled selected>Pilih Kota</option>
-                                    @foreach($cities as $city)
-                                        <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
+                                    @foreach ($cities as $city)
+                                        <option value="{{ $city->id }}"
+                                            {{ old('city_id') == $city->id ? 'selected' : '' }}>
                                             {{ $city->name }}
                                         </option>
                                     @endforeach
@@ -114,9 +130,8 @@
                         <div class="row form-group">
                             <div class="col-md-12 mb-3">
                                 <label for="address" class="text-black">Alamat <span class="text-danger">*</span></label>
-                                <textarea name="address" id="address" cols="30" rows="3" 
-                                    class="form-control @error('address') is-invalid @enderror" 
-                                    placeholder="Alamat lengkap properti" required>{{ old('address') }}</textarea>
+                                <textarea name="address" id="address" cols="30" rows="3"
+                                    class="form-control @error('address') is-invalid @enderror" placeholder="Alamat lengkap properti" required>{{ old('address') }}</textarea>
                                 @error('address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -125,10 +140,10 @@
 
                         <div class="row form-group">
                             <div class="col-md-12 mb-3">
-                                <label for="about" class="text-black">Deskripsi <span class="text-danger">*</span></label>
-                                <textarea name="about" id="about" cols="30" rows="4" 
-                                    class="form-control @error('about') is-invalid @enderror" 
-                                    placeholder="Deskripsi properti" required>{{ old('about') }}</textarea>
+                                <label for="about" class="text-black">Deskripsi <span
+                                        class="text-danger">*</span></label>
+                                <textarea name="about" id="about" cols="30" rows="4"
+                                    class="form-control @error('about') is-invalid @enderror" placeholder="Deskripsi properti" required>{{ old('about') }}</textarea>
                                 @error('about')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -138,9 +153,8 @@
                         <div class="row form-group">
                             <div class="col-md-12 mb-3">
                                 <label for="paragraph" class="text-black">Paragraf Tambahan</label>
-                                <textarea name="paragraph" id="paragraph" cols="30" rows="3" 
-                                    class="form-control @error('paragraph') is-invalid @enderror" 
-                                    placeholder="Informasi tambahan (opsional)">{{ old('paragraph') }}</textarea>
+                                <textarea name="paragraph" id="paragraph" cols="30" rows="3"
+                                    class="form-control @error('paragraph') is-invalid @enderror" placeholder="Informasi tambahan (opsional)">{{ old('paragraph') }}</textarea>
                                 @error('paragraph')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -149,16 +163,21 @@
 
                         <!-- Additional Information -->
                         <h4 class="text-black mb-4 mt-5">Informasi Tambahan</h4>
-                        
+
                         <div class="row form-group">
                             <div class="col-md-4 mb-3">
                                 <label for="certificate" class="text-black">Sertifikat</label>
-                                <select name="certificate" id="certificate" class="form-control @error('certificate') is-invalid @enderror">
+                                <select name="certificate" id="certificate"
+                                    class="form-control @error('certificate') is-invalid @enderror">
                                     <option value="" hidden disabled selected>Pilih Sertifikat</option>
-                                    <option value="SHM" {{ old('certificate') == 'SHM' ? 'selected' : '' }}>SHM</option>
-                                    <option value="HGB" {{ old('certificate') == 'HGB' ? 'selected' : '' }}>HGB</option>
-                                    <option value="IMB" {{ old('certificate') == 'IMB' ? 'selected' : '' }}>IMB</option>
-                                    <option value="Lainnya" {{ old('certificate') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                    <option value="SHM" {{ old('certificate') == 'SHM' ? 'selected' : '' }}>SHM
+                                    </option>
+                                    <option value="HGB" {{ old('certificate') == 'HGB' ? 'selected' : '' }}>HGB
+                                    </option>
+                                    <option value="IMB" {{ old('certificate') == 'IMB' ? 'selected' : '' }}>IMB
+                                    </option>
+                                    <option value="Lainnya" {{ old('certificate') == 'Lainnya' ? 'selected' : '' }}>
+                                        Lainnya</option>
                                 </select>
                                 @error('certificate')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -168,8 +187,8 @@
                                 <label for="bedrooms" class="text-black">Kamar Tidur</label>
                                 <div class="input-group">
                                     <input type="number" id="bedrooms" name="bedrooms" min="0"
-                                        class="form-control @error('bedrooms') is-invalid @enderror"
-                                        placeholder="0" value="{{ old('bedrooms') }}">
+                                        class="form-control @error('bedrooms') is-invalid @enderror" placeholder="0"
+                                        value="{{ old('bedrooms') }}">
                                     <div class="input-group-append">
                                         <span class="input-group-text">Unit</span>
                                     </div>
@@ -182,8 +201,8 @@
                                 <label for="bathrooms" class="text-black">Kamar Mandi</label>
                                 <div class="input-group">
                                     <input type="number" id="bathrooms" name="bathrooms" min="0"
-                                        class="form-control @error('bathrooms') is-invalid @enderror"
-                                        placeholder="0" value="{{ old('bathrooms') }}">
+                                        class="form-control @error('bathrooms') is-invalid @enderror" placeholder="0"
+                                        value="{{ old('bathrooms') }}">
                                     <div class="input-group-append">
                                         <span class="input-group-text">Unit</span>
                                     </div>
@@ -199,8 +218,8 @@
                                 <label for="electric" class="text-black">Daya Listrik</label>
                                 <div class="input-group">
                                     <input type="number" id="electric" name="electric" min="0"
-                                        class="form-control @error('electric') is-invalid @enderror"
-                                        placeholder="0" value="{{ old('electric') }}">
+                                        class="form-control @error('electric') is-invalid @enderror" placeholder="0"
+                                        value="{{ old('electric') }}">
                                     <div class="input-group-append">
                                         <span class="input-group-text">Watt</span>
                                     </div>
@@ -213,8 +232,8 @@
                                 <label for="land_area" class="text-black">Luas Tanah</label>
                                 <div class="input-group">
                                     <input type="number" id="land_area" name="land_area" min="0" step="0.01"
-                                        class="form-control @error('land_area') is-invalid @enderror"
-                                        placeholder="0" value="{{ old('land_area') }}">
+                                        class="form-control @error('land_area') is-invalid @enderror" placeholder="0"
+                                        value="{{ old('land_area') }}">
                                     <div class="input-group-append">
                                         <span class="input-group-text">m²</span>
                                     </div>
@@ -226,8 +245,8 @@
                             <div class="col-md-4 mb-3">
                                 <label for="building_area" class="text-black">Luas Bangunan</label>
                                 <div class="input-group">
-                                    <input type="number" id="building_area" name="building_area" min="0" step="0.01"
-                                        class="form-control @error('building_area') is-invalid @enderror"
+                                    <input type="number" id="building_area" name="building_area" min="0"
+                                        step="0.01" class="form-control @error('building_area') is-invalid @enderror"
                                         placeholder="0" value="{{ old('building_area') }}">
                                     <div class="input-group-append">
                                         <span class="input-group-text">m²</span>
@@ -244,12 +263,11 @@
                         <div class="row form-group">
                             <div class="col-md-12 mb-3">
                                 <div class="row">
-                                    @foreach($facilities as $facility)
+                                    @foreach ($facilities as $facility)
                                         <div class="col-md-4 col-sm-6 mb-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" 
-                                                    name="facilities[]" value="{{ $facility->id }}" 
-                                                    id="facility_{{ $facility->id }}"
+                                                <input class="form-check-input" type="checkbox" name="facilities[]"
+                                                    value="{{ $facility->id }}" id="facility_{{ $facility->id }}"
                                                     {{ in_array($facility->id, old('facilities', [])) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="facility_{{ $facility->id }}">
                                                     {{ $facility->name }}
@@ -268,11 +286,11 @@
                         <div class="row form-group">
                             <div class="col-md-12 mb-3">
                                 <label for="map" class="text-black">Peta (Google Maps Embed)</label>
-                                <textarea name="map" id="map" cols="30" rows="3" 
-                                    class="form-control @error('map') is-invalid @enderror" 
-                                    placeholder="Masukkan kode embed dari Google Maps">{{ old('map') }}</textarea>
+                                <textarea name="map" id="map" cols="30" rows="3"
+                                    class="form-control @error('map') is-invalid @enderror" placeholder="Masukkan kode embed dari Google Maps">{{ old('map') }}</textarea>
                                 <small class="form-text text-muted">
-                                    Dapatkan kode embed dari Google Maps dengan memilih "Share" > "Embed a map" > Salin kode HTML yang disediakan.
+                                    Dapatkan kode embed dari Google Maps dengan memilih "Share" > "Embed a map" > Salin kode
+                                    (Https://..) nya saja yang disediakan.
                                 </small>
                                 @error('map')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -282,11 +300,12 @@
 
                         <!-- Images -->
                         <h4 class="text-black mb-4 mt-5">Foto Properti</h4>
-                        
+
                         <div class="row form-group">
                             <div class="col-md-12 mb-3">
-                                <label for="thumbnail" class="text-black">Thumbnail <span class="text-danger">*</span></label>
-                                <input type="file" id="thumbnail" name="thumbnail" 
+                                <label for="thumbnail" class="text-black">Thumbnail <span
+                                        class="text-danger">*</span></label>
+                                <input type="file" id="thumbnail" name="thumbnail"
                                     class="form-control @error('thumbnail') is-invalid @enderror"
                                     accept="image/jpeg,image/jpg,image/png,image/gif" required>
                                 <small class="form-text text-muted">Maksimal 1MB. Format: JPEG, JPG, PNG, GIF</small>
@@ -302,7 +321,8 @@
                                 <input type="file" id="photos" name="photos[]" multiple
                                     class="form-control @error('photos.*') is-invalid @enderror"
                                     accept="image/jpeg,image/jpg,image/png,image/gif">
-                                <small class="form-text text-muted">Maksimal 2MB per file. Format: JPEG, JPG, PNG, GIF. Bisa pilih beberapa file sekaligus.</small>
+                                <small class="form-text text-muted">Maksimal 2MB per file. Format: JPEG, JPG, PNG, GIF.
+                                    Bisa pilih beberapa file sekaligus.</small>
                                 @error('photos.*')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -310,34 +330,37 @@
                         </div>
 
                 </div>
-                
+
                 <!-- Sidebar Contact Info -->
                 <div class="col-lg-4">
                     <div class="bg-white widget border rounded">
                         <h3 class="h4 text-black widget-title mb-3">Contact Pengiklan</h3>
 
                         <div class="form-group">
-                            <label for="name_iklan" class="text-black">Nama Pengiklan <span class="text-danger">*</span></label>
-                            <input type="text" placeholder="Nama Pengiklan" id="name_iklan" name="name_iklan" 
+                            <label for="name_iklan" class="text-black">Nama Pengiklan <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" placeholder="Nama Pengiklan" id="name_iklan" name="name_iklan"
                                 value="{{ old('name_iklan') }}"
                                 class="form-control @error('name_iklan') is-invalid @enderror" required>
                             @error('name_iklan')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        
+
                         <div class="form-group">
-                            <label for="phone_iklan" class="text-black">No. HP Pengiklan <span class="text-danger">*</span></label>
-                            <input type="tel" placeholder="No. HP Pengiklan" id="phone_iklan" name="phone_iklan" 
+                            <label for="phone_iklan" class="text-black">No. HP Pengiklan <span
+                                    class="text-danger">*</span></label>
+                            <input type="tel" placeholder="No. HP Pengiklan" id="phone_iklan" name="phone_iklan"
                                 value="{{ old('phone_iklan') }}"
                                 class="form-control @error('phone_iklan') is-invalid @enderror" required>
                             @error('phone_iklan')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        
+
                         <div class="form-group">
-                            <label for="email_iklan" class="text-black">Email Pengiklan <span class="text-danger">*</span></label>
+                            <label for="email_iklan" class="text-black">Email Pengiklan <span
+                                    class="text-danger">*</span></label>
                             <input type="email" placeholder="Email Pengiklan" id="email_iklan" name="email_iklan"
                                 value="{{ old('email_iklan') }}"
                                 class="form-control @error('email_iklan') is-invalid @enderror" required>
@@ -349,8 +372,8 @@
                         <div class="form-group">
                             <input type="submit" class="btn btn-primary btn-block" value="Buat Iklan" />
                         </div>
-                        
-                    </form>
+
+                        </form>
                     </div>
                 </div>
             </div>
@@ -411,6 +434,7 @@
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -422,6 +446,7 @@
                 transform: translateX(0);
                 opacity: 1;
             }
+
             to {
                 transform: translateX(100%);
                 opacity: 0;
@@ -432,6 +457,7 @@
             from {
                 width: 100%;
             }
+
             to {
                 width: 0%;
             }
