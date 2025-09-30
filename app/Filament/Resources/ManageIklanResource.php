@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 
 class ManageIklanResource extends Resource
 {
@@ -244,6 +245,28 @@ class ManageIklanResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\Action::make('publish')
+                    ->label('Publish')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Publish Iklan')
+                    ->modalDescription('Apakah Anda yakin ingin mempublikasikan iklan ini?')
+                    ->modalSubmitActionLabel('Ya, Publish')
+                    ->action(function (Property $record) {
+                        $record->update([
+                            'status_iklan' => 'Active',
+                            'status_active' => 'Active',
+                        ]);
+
+                        Notification::make()
+                            ->title('Iklan berhasil dipublikasikan')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Property $record) =>
+                        $record->status_iklan !== 'Active' || $record->status_active !== 'Active'
+                    ),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
