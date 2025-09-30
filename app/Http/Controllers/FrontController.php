@@ -445,7 +445,7 @@ class FrontController extends Controller
         $about = About::first();
 
         return view('front.iklan', compact('about','propertyTypes', 'categories', 'cities', 'facilities'));
-  
+
     }
 
     public function store(Request $request)
@@ -456,7 +456,7 @@ class FrontController extends Controller
             'name_iklan' => 'required|string|max:255',
             'email_iklan' => 'required|email|max:255',
             'phone_iklan' => 'required|string|max:20',
-            
+
             // Data properti
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
@@ -467,7 +467,7 @@ class FrontController extends Controller
             'about' => 'required|string',
             'paragraph' => 'nullable|string',
             'status_listing' => 'required|in:For Sale,For Rent',
-            
+
             // Data tambahan
             'certificate' => 'nullable|in:SHM,HGB,IMB,Lainnya',
             'bedrooms' => 'nullable|integer|min:0',
@@ -476,18 +476,18 @@ class FrontController extends Controller
             'land_area' => 'nullable|numeric|min:0',
             'building_area' => 'nullable|numeric|min:0',
             'map' => 'nullable|string',
-            
+
             // File upload
             'thumbnail' => 'required|image|mimes:jpeg,jpg,png,gif|max:1024',
             'photos.*' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
-            
+
             // Fasilitas
             'facilities' => 'nullable|array',
             'facilities.*' => 'exists:facilities,id',
         ]);
 
         DB::beginTransaction();
-        
+
         try {
             // Upload thumbnail
             $thumbnailPath = null;
@@ -502,7 +502,7 @@ class FrontController extends Controller
                 'email_iklan' => $request->email_iklan,
                 'phone_iklan' => $request->phone_iklan,
                 'status_iklan' => 'Inactive', // Default status untuk iklan baru
-                
+
                 // Data properti
                 'jenis' => 'Iklan',
                 'name' => $request->name,
@@ -516,7 +516,7 @@ class FrontController extends Controller
                 'status_listing' => $request->status_listing,
                 'status_active' => 'Inactive', // Default inactive sampai disetujui admin
                 'thumbnail' => $thumbnailPath,
-                
+
                 // Data tambahan
                 'certificate' => $request->certificate,
                 'bedrooms' => $request->bedrooms,
@@ -551,15 +551,15 @@ class FrontController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 'Iklan berhasil dibuat! Menunggu persetujuan admin.');
-            
+
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             // Hapus file yang sudah diupload jika ada error
             if ($thumbnailPath) {
                 Storage::disk('direct_storage')->delete($thumbnailPath);
             }
-            
+
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat membuat iklan. Silakan coba lagi.')
                 ->withInput();

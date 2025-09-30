@@ -1,20 +1,6 @@
 @extends('layouts.master')
 @section('title', 'Buat Iklan Property')
 @section('content')
-    <div id="notification-container" class="notification-container">
-        @if (session('success'))
-            <div class="alert alert-success notification-alert" id="success-notification">
-                <i class="fas fa-check-circle me-2"></i>
-                {{ session('success') }}
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger notification-alert" id="error-notification">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                {{ session('error') }}
-            </div>
-        @endif
-    </div>
 
     <x-nav-property :about="$about" />
 
@@ -22,7 +8,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8">
-                    <form method="POST" action="{{ route('iklan.store') }}" class="p-5 bg-white border"
+                    <form method="POST" action="{{ route('iklan.store') }}" class="p-5 bg-white border form-contact-agent"
                         enctype="multipart/form-data">
                         @csrf
 
@@ -382,162 +368,169 @@
 
     <x-footer-property :about="$about" />
 
+    <!-- Modal HTML -->
+    <div id="successModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="modal-icon">
+                    <svg width="50" height="50" viewBox="0 0 60 60" fill="none">
+                        <circle cx="30" cy="30" r="30" fill="#10B981" />
+                        <path d="M16 30L26 40L44 22" stroke="white" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <h3 class="modal-title">Berhasil!</h3>
+                <p class="modal-message">Iklan berhasil dibuat!, kami akan menghubungi kembali untuk konfirmasi</p>
+                <button id="modalOkBtn" class="modal-btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSS untuk Modal -->
     <style>
-        .notification-container {
+        .modal-overlay {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            width: 350px;
-        }
-
-        .notification-alert {
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border: none;
-            padding: 12px 16px;
-            font-size: 14px;
-            animation: slideInRight 0.3s ease-out;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .notification-alert.alert-success {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-
-        .notification-alert.alert-danger {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-
-        .notification-alert::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
-            height: 3px;
-            background: #28a745;
-            animation: progressBar 3s linear;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
         }
 
-        .notification-alert.alert-danger::before {
-            background: #dc3545;
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 0;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
         }
 
-        @keyframes slideInRight {
+        .modal-body {
+            padding: 30px 25px;
+            text-align: center;
+        }
+
+        .modal-icon {
+            margin: 0 auto 15px;
+            width: 50px;
+            height: 50px;
+        }
+
+        .modal-icon svg {
+            width: 50px;
+            height: 50px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 10px 0;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+            margin: 0 0 20px 0;
+        }
+
+        .modal-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 35px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            max-width: 180px;
+        }
+
+        .modal-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        @keyframes fadeIn {
             from {
-                transform: translateX(100%);
                 opacity: 0;
             }
 
             to {
-                transform: translateX(0);
                 opacity: 1;
             }
         }
 
-        @keyframes slideOutRight {
+        @keyframes slideUp {
             from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-
-            to {
-                transform: translateX(100%);
+                transform: translateY(30px);
                 opacity: 0;
             }
-        }
-
-        @keyframes progressBar {
-            from {
-                width: 100%;
-            }
 
             to {
-                width: 0%;
-            }
-        }
-
-        .notification-fade-out {
-            animation: slideOutRight 0.3s ease-in forwards;
-        }
-
-        /* Custom styling */
-        .input-group-text {
-            background-color: #f8f9fa;
-            border-color: #ced4da;
-        }
-
-        .form-check-input:checked {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .notification-container {
-                width: calc(100% - 40px);
-                right: 20px;
-                left: 20px;
-            }
-
-            .notification-alert {
-                font-size: 13px;
-                padding: 10px 14px;
+                transform: translateY(0);
+                opacity: 1;
             }
         }
     </style>
 
+    <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto hide notifications after 3 seconds
-            const notifications = document.querySelectorAll('.notification-alert');
+            const form = document.querySelector('.form-contact-agent');
+            const modal = document.getElementById('successModal');
+            const okBtn = document.getElementById('modalOkBtn');
 
-            notifications.forEach(function(notification) {
-                // Add click to close functionality
-                notification.style.cursor = 'pointer';
-                notification.addEventListener('click', function() {
-                    hideNotification(this);
-                });
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-                // Auto hide after 3 seconds
-                setTimeout(function() {
-                    hideNotification(notification);
-                }, 3000);
+                // Ambil data form
+                const formData = new FormData(form);
+
+                // Kirim data menggunakan fetch API
+                fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Tampilkan modal
+                            modal.style.display = 'flex';
+                        } else {
+                            // Handle error jika diperlukan
+                            alert('Terjadi kesalahan. Silakan coba lagi.');
+                        }
+                    })
+                    .catch(error => {
+                        // Jika terjadi error, tetap tampilkan modal (opsional)
+                        modal.style.display = 'flex';
+                    });
             });
 
-            function hideNotification(element) {
-                element.classList.add('notification-fade-out');
-                setTimeout(function() {
-                    if (element && element.parentNode) {
-                        element.parentNode.removeChild(element);
-                    }
-                }, 300);
-            }
+            // Event listener untuk tombol OK
+            okBtn.addEventListener('click', function() {
+                // Refresh halaman
+                window.location.reload();
+            });
 
-            // Preview thumbnail
-            document.getElementById('thumbnail').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        // You can add image preview functionality here
-                        console.log('Thumbnail selected:', file.name);
-                    }
-                    reader.readAsDataURL(file);
+            // Tutup modal jika klik di luar modal content
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    window.location.reload();
                 }
-            });
-
-            // Format price input
-            document.getElementById('price').addEventListener('input', function(e) {
-                // Remove any non-digit characters
-                let value = e.target.value.replace(/\D/g, '');
-                e.target.value = value;
             });
         });
     </script>
