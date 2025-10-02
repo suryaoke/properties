@@ -2,34 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\Propertys;
-use App\Filament\Resources\PropertyResource\Pages;
-use App\Filament\Resources\PropertyResource\RelationManagers;
+use App\Filament\Resources\ArsipResource\Pages;
+use App\Filament\Resources\ArsipResource\RelationManagers;
 use App\Models\Facility;
 use App\Models\Property;
 use Filament\Forms;
-use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Notifications\Notification;
 
-class PropertyResource extends Resource
+class ArsipResource extends Resource
 {
     protected static ?string $model = Property::class;
-    protected static ?string $navigationLabel = 'Properti';
-    protected static ?string $pluralLabel = 'Properti';
-    protected static ?string $label = 'Properti';
+    protected static ?string $navigationLabel = 'Arsip';
+    protected static ?string $pluralLabel = 'Arsip';
+    protected static ?string $label = 'Arsip';
 
-    protected static ?string $cluster = Propertys::class;
 
-    // protected static ?string $navigationIcon = 'heroicon-o-home-modern';
-
+    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
 
     public static function form(Form $form): Form
@@ -169,33 +163,33 @@ class PropertyResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')->label('Kategori')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('city.name')->label('Kota')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('certificate')->label('Sertifikat')->searchable()->sortable(),
-                Tables\Columns\BadgeColumn::make('status_active')
-                    ->label('Status')
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'Active' => 'Active',
-                        'Inactive' => 'Inactive',
-                        default => $state,
-                    })
-                    ->colors([
-                        'success' => fn($state) => $state === 'Active',
-                        'danger' => fn($state) => $state === 'Inactive',
-                    ])
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\BadgeColumn::make('status_listing')
-                    ->label('Status Listing')
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'For Sale' => 'For Sale',
-                        'For Rent' => 'For Rent',
-                        default => $state,
-                    })
-                    ->colors([
-                        'success' => fn($state) => $state === 'For Sale',
-                        'danger' => fn($state) => $state === 'For Ren',
-                    ])
-                    ->searchable()
-                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
+                Tables\Columns\BadgeColumn::make('jenis')
+                    ->label('Iklan')
+                    ->formatStateUsing(fn($state) => $state === 'Iklan' ? 'Ya' : '-')
+                    ->colors([
+                        'success' => fn($state) => $state === 'Ya',
+                        'danger'  => fn($state) => $state === '-',
+                    ])
+                    ->searchable()
+                    ->sortable(),
+
+
+                Tables\Columns\BadgeColumn::make('status_terjual')
+                    ->label('Status Terjual')
+                    ->formatStateUsing(fn($state) => $state ?? 'Belum Terjual')
+                    ->colors([
+                        'success' => fn($state) => $state === 'Terjual',
+                        'gray' => fn($state) => $state === null || $state === 'Belum Terjual',
+                    ])
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tanggal_terjual')
+                    ->label('Tanggal Terjual')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->placeholder('-'),
 
 
             ])
@@ -203,30 +197,7 @@ class PropertyResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\Action::make('markAsSold')
-                    ->label('Jual')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Tandai Sebagai Terjual')
-                    ->modalDescription('Apakah Anda yakin ingin menandai properti ini sebagai terjual?')
-                    ->modalSubmitActionLabel('Ya, Tandai Terjual')
-                    ->visible(fn(Property $record) => $record->status_terjual !== 'Terjual')
-                    ->action(function (Property $record) {
-                        $record->update([
-                            'status_terjual' => 'Terjual',
-                            'tanggal_terjual' => now(),
-                        ]);
-
-                        Notification::make()
-                            ->title('Berhasil')
-                            ->body('Properti telah ditandai sebagai terjual.')
-                            ->success()
-                            ->send();
-                    }),
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->actionsColumnLabel('Aksi')
             ->bulkActions([
@@ -248,18 +219,18 @@ class PropertyResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProperties::route('/'),
-            'create' => Pages\CreateProperty::route('/create'),
-            'edit' => Pages\EditProperty::route('/{record}/edit'),
+            'index' => Pages\ListArsips::route('/'),
+            // 'create' => Pages\CreateArsip::route('/create'),
+            // 'edit' => Pages\EditArsip::route('/{record}/edit'),
         ];
     }
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->whereNull('jenis')->whereNull('status_terjual');
+        return parent::getEloquentQuery()->whereNotNull('status_terjual');
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()?->can('view_any_property');
+        return auth()->user()?->can('view_any_arsip');
     }
 }

@@ -24,7 +24,7 @@ class ManageIklanResource extends Resource
     protected static ?string $pluralLabel = 'Manage Iklan';
     protected static ?string $label = 'Manage Iklan';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

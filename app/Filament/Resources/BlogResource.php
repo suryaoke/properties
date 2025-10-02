@@ -20,7 +20,7 @@ class BlogResource extends Resource
     protected static ?string $navigationLabel = 'Blog'; // ubah nama di menu
     protected static ?string $pluralLabel = 'Blog'; // judul di list
     protected static ?string $label = 'Blog';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
     public static function form(Form $form): Form
     {
