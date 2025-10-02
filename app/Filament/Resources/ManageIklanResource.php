@@ -6,6 +6,7 @@ use App\Filament\Resources\ManageIklanResource\Pages;
 use App\Filament\Resources\ManageIklanResource\RelationManagers;
 use App\Models\Facility;
 use App\Models\Property;
+use App\Models\About;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Form;
@@ -264,10 +265,84 @@ class ManageIklanResource extends Resource
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (Property $record) =>
+                    ->visible(
+                        fn(Property $record) =>
                         $record->status_iklan !== 'Active' || $record->status_active !== 'Active'
                     ),
+                Tables\Actions\Action::make('unpublish')
+                    ->label('Unpublish')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Unpublish Iklan')
+                    ->modalDescription('Apakah Anda yakin ingin menonaktifkan iklan ini?')
+                    ->modalSubmitActionLabel('Ya, Unpublish')
+                    ->action(function (Property $record) {
+                        $record->update([
+                            'status_iklan' => 'Inactive',
+                            'status_active' => 'Inactive',
+                        ]);
+
+                        Notification::make()
+                            ->title('Iklan berhasil dinonaktifkan')
+                            ->warning()
+                            ->send();
+                    })
+                    ->visible(
+                        fn(Property $record) =>
+                        $record->status_iklan === 'Active' && $record->status_active === 'Active'
+                    ),
                 Tables\Actions\ViewAction::make(),
+
+
+                // Tombol WhatsApp dengan Pesan Default
+                Tables\Actions\Action::make('whatsapp')
+                    ->label('WhatsApp')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->color('success')
+                    ->url(function ($record) {
+                        $number = self::formatPhoneForWhatsApp($record->phone_iklan);
+                        if (!$number) {
+                            return null;
+                        }
+
+                        // Ambil data About
+                        $about = About::first();
+                        $companyName = $about->title ?? 'Perusahaan Kami';
+
+                        // Ambil data user yang sedang login
+                        $userName = auth()->user()->name ?? 'Admin';
+
+                        // Ambil data properti
+                        $propertyName = $record->name ?? '-';
+                        $propertyPrice = $record->price ?? 0;
+                        $formattedPrice = 'Rp ' . number_format($propertyPrice, 0, ',', '.');
+
+                        // Buat pesan WhatsApp
+                        $message = "Halo {$record->name_iklan}, saya {$userName} dari {$companyName}\n\n";
+                        $message .= "Terkait Iklan Anda:\n";
+                        $message .= "Properti: {$propertyName}\n";
+                        $message .= "Harga: {$formattedPrice}\n\n";
+                        $message .= "Terima kasih telah memasang iklan. Ada yang bisa saya bantu?";
+
+                        // Encode pesan untuk URL
+                        $encodedMessage = urlencode($message);
+
+                        return "https://wa.me/{$number}?text={$encodedMessage}";
+                    }, shouldOpenInNewTab: true)
+                    ->visible(fn($record) => !empty($record->phone_iklan) && self::formatPhoneForWhatsApp($record->phone_iklan) !== null),
+
+                // Tombol Telepon
+                Tables\Actions\Action::make('call')
+                    ->label('Telepon')
+                    ->icon('heroicon-o-phone')
+                    ->color('primary')
+                    ->url(
+                        fn($record) => ($number = self::formatPhoneForWhatsApp($record->phone_iklan))
+                            ? 'tel:' . $number
+                            : null
+                    )
+                    ->visible(fn($record) => !empty($record->phone_iklan) && self::formatPhoneForWhatsApp($record->phone_iklan) !== null),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -279,6 +354,43 @@ class ManageIklanResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * Normalisasi nomor HP untuk WA (E.164)
+     */
+    private static function formatPhoneForWhatsApp(?string $phone): ?string
+    {
+        if (empty($phone)) {
+            return null;
+        }
+
+        // Hapus semua karakter non-digit
+        $digits = preg_replace('/\D+/', '', $phone);
+        if (empty($digits)) {
+            return null;
+        }
+
+        // Hapus leading 00 jika ada
+        $digits = preg_replace('/^00+/', '', $digits);
+
+        if (str_starts_with($digits, '62')) {
+            $normalized = $digits;
+        } elseif (str_starts_with($digits, '0')) {
+            $normalized = '62' . substr($digits, 1);
+        } elseif (str_starts_with($digits, '8')) {
+            $normalized = '62' . $digits;
+        } else {
+            $normalized = $digits;
+        }
+
+        // Validasi panjang (E.164 max 15 digit)
+        $len = strlen($normalized);
+        if ($len < 8 || $len > 15) {
+            return null;
+        }
+
+        return $normalized;
     }
 
     public static function getRelations(): array

@@ -17,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 
 class PropertyResource extends Resource
 {
@@ -202,6 +203,27 @@ class PropertyResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\Action::make('markAsSold')
+                    ->label('Terjual')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Tandai Sebagai Terjual')
+                    ->modalDescription('Apakah Anda yakin ingin menandai properti ini sebagai terjual?')
+                    ->modalSubmitActionLabel('Ya, Tandai Terjual')
+                    ->visible(fn (Property $record) => $record->status_terjual !== 'Terjual')
+                    ->action(function (Property $record) {
+                        $record->update([
+                            'status_terjual' => 'Terjual',
+                            'tanggal_terjual' => now(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Berhasil')
+                            ->body('Properti telah ditandai sebagai terjual.')
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -241,7 +263,7 @@ class PropertyResource extends Resource
     // }
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->whereNull('jenis');
+        return parent::getEloquentQuery()->whereNull('jenis')->whereNull('status_terjual');
     }
 
     public static function shouldRegisterNavigation(): bool

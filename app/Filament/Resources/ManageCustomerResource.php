@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ManageCustomerResource\Pages;
 use App\Models\ManageCustomer;
+use App\Models\About; // Import model About
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -92,21 +93,108 @@ class ManageCustomerResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                               Tables\Actions\ViewAction::make()
+                    ->form([
+                        Forms\Components\Section::make('Informasi Customer')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nama')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('email')
+                                    ->label('Email')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('phone')
+                                    ->label('Telepon')
+                                    ->disabled(),
+                                Forms\Components\Textarea::make('message')
+                                    ->label('Pesan')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('properties.name')
+                                    ->label('Properti')
+                                    ->disabled(),
+                                Forms\Components\Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'new' => 'Baru',
+                                        'in_progress' => 'Dalam Proses',
+                                        'completed' => 'Selesai',
+                                    ])
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('created_at')
+                                    ->label('Dibuat')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('updated_at')
+                                    ->label('Diubah')
+                                    ->disabled(),
+                            ])->columns(2),
+                    ])
+                    ->modalActions([
+                        // Tombol default Close
+                        Tables\Actions\Action::make('close')
+                            ->label('Tutup')
+                            ->color('secondary')
+                            ->action(fn () => null),
+
+                        // Tombol View Properti yang membuka modal baru
+                        Tables\Actions\Action::make('view_property')
+                            ->label('View Properti')
+                            ->color('primary')
+                            ->icon('heroicon-o-home-modern')
+                            ->visible(fn ($record) => $record->properties !== null)
+                            ->form(fn ($record) => self::getPropertyViewForm($record->properties))
+                            ->modalHeading(fn ($record) => 'Detail Properti: ' . $record->properties->name)
+                            ->modalWidth('7xl')
+                            ->modalActions([
+                                Tables\Actions\Action::make('close_property')
+                                    ->label('Tutup')
+                                    ->color('secondary'),
+                            ]),
+                    ])
+                    ->modalWidth('5xl'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
 
-                // Tombol WhatsApp
+                // Tombol WhatsApp dengan Pesan Default
                 Action::make('whatsapp')
                     ->label('WhatsApp')
                     ->icon('heroicon-o-chat-bubble-left-right')
                     ->color('success')
-                    ->url(
-                        fn($record) => ($number = self::formatPhoneForWhatsApp($record->phone))
-                            ? 'https://wa.me/' . $number
-                            : null,
-                        shouldOpenInNewTab: true
-                    )
+                    ->url(function ($record) {
+                        $number = self::formatPhoneForWhatsApp($record->phone);
+                        if (!$number) {
+                            return null;
+                        }
+
+                        // Ambil data About (sesuaikan dengan struktur tabel Anda)
+                        $about = About::first();
+                        $companyName = $about->title ?? 'Perusahaan Kami';
+
+                        // Ambil data user yang sedang login
+                        $userName = auth()->user()->name ?? 'Admin';
+
+                        // Ambil data properti
+                        $propertyName = $record->properties->name ?? '-';
+                        $propertyPrice = $record->properties->price ?? 0;
+                        $formattedPrice = 'Rp ' . number_format($propertyPrice, 0, ',', '.');
+
+                        // Pesan customer (dipotong jika terlalu panjang)
+                        $customerMessage = strlen($record->message) > 100
+                            ? substr($record->message, 0, 100) . '...'
+                            : $record->message;
+
+                        // Buat pesan WhatsApp
+                        $message = "Halo {$record->name}, saya {$userName} dari {$companyName}\n\n";
+                        $message .= "Terkait Minat Anda:\n";
+                        $message .= "Properti: {$propertyName}\n";
+                        $message .= "Harga: {$formattedPrice}\n";
+                        $message .= "Pesan Anda: {$customerMessage}\n\n";
+                        $message .= "Terima kasih atas ketertarikan Anda. Ada yang bisa saya bantu?";
+
+                        // Encode pesan untuk URL
+                        $encodedMessage = urlencode($message);
+
+                        return "https://wa.me/{$number}?text={$encodedMessage}";
+                    }, shouldOpenInNewTab: true)
                     ->visible(fn($record) => !empty($record->phone) && self::formatPhoneForWhatsApp($record->phone) !== null),
 
                 // Tombol Telepon
@@ -165,6 +253,97 @@ class ManageCustomerResource extends Resource
         }
 
         return $normalized;
+    }
+
+     public static function getPropertyViewForm($property): array
+    {
+        if (!$property) {
+            return [
+                Forms\Components\Placeholder::make('no_property')
+                    ->label('Tidak ada properti yang terkait')
+                    ->content('Customer ini belum memilih properti.')
+            ];
+        }
+
+        return [
+            Forms\Components\Section::make('Informasi Properti')
+                ->schema([
+                    // Forms\Components\TextInput::make('thumbnail')
+                    //     ->label('Thumbnail')
+                    //     ->disabled()
+                    //     ->default($property->thumbnail ?? 'Tidak ada thumbnail'),
+                    Forms\Components\FileUpload::make('thumbnail')
+                            ->label('Thumbnail')
+                            ->required()
+                            ->image()
+                            ->disk('direct_storage')
+                            ->directory('properties')
+                            ->default($property->thumbnail ?? 'Tidak ada thumbnail')
+                            ->maxSize(1024),
+                    Forms\Components\TextInput::make('property_name')
+                        ->label('Nama Properti')
+                        ->disabled()
+                        ->default($property->name ?? 'Tidak ada nama'),
+                    Forms\Components\TextInput::make('property_price')
+                        ->label('Harga')
+                        ->disabled()
+                        ->prefix('IDR')
+                        ->default($property->price ? number_format($property->price, 0, ',', '.') : 'Tidak ada harga'),
+                    Forms\Components\TextInput::make('property_type')
+                        ->label('Tipe Properti')
+                        ->disabled()
+                        ->default($property->propertyType?->name ?? 'Tidak ada tipe'),
+                    Forms\Components\TextInput::make('property_category')
+                        ->label('Kategori')
+                        ->disabled()
+                        ->default($property->category?->name ?? 'Tidak ada kategori'),
+                    Forms\Components\TextInput::make('property_city')
+                        ->label('Kota')
+                        ->disabled()
+                        ->default($property->city?->name ?? 'Tidak ada kota'),
+                ])->columns(2),
+
+            Forms\Components\Section::make('Detail Properti')
+                ->schema([
+                    Forms\Components\Textarea::make('property_address')
+                        ->label('Alamat')
+                        ->disabled()
+                        ->default($property->address ?? 'Tidak ada alamat'),
+                    Forms\Components\Textarea::make('property_about')
+                        ->label('Deskripsi')
+                        ->disabled()
+                        ->default($property->about ?? 'Tidak ada deskripsi'),
+                    Forms\Components\TextInput::make('property_certificate')
+                        ->label('Sertifikat')
+                        ->disabled()
+                        ->default($property->certificate ?? 'Tidak ada sertifikat'),
+                    Forms\Components\TextInput::make('property_bedrooms')
+                        ->label('Kamar Tidur')
+                        ->disabled()
+                        ->suffix('Unit')
+                        ->default($property->bedrooms ?? 0),
+                    Forms\Components\TextInput::make('property_bathrooms')
+                        ->label('Kamar Mandi')
+                        ->disabled()
+                        ->suffix('Unit')
+                        ->default($property->bathrooms ?? 0),
+                    Forms\Components\TextInput::make('property_land_area')
+                        ->label('Luas Tanah')
+                        ->disabled()
+                        ->suffix('m²')
+                        ->default($property->land_area ?? 0),
+                    Forms\Components\TextInput::make('property_building_area')
+                        ->label('Luas Bangunan')
+                        ->disabled()
+                        ->suffix('m²')
+                        ->default($property->building_area ?? 0),
+                    Forms\Components\TextInput::make('property_electric')
+                        ->label('Daya Listrik')
+                        ->disabled()
+                        ->suffix('Watt')
+                        ->default($property->electric ?? 0),
+                ])->columns(2),
+        ];
     }
 
     public static function getRelations(): array

@@ -33,6 +33,8 @@ class Property extends Model
             'phone_iklan',
             'email_iklan',
             'status_iklan',
+            'status_terjual',
+            'tanggal_terjual',
         ];
     public function setNameAttribute($value)
     {
