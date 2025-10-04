@@ -1,23 +1,66 @@
 @extends('layouts.master')
 @section('title', 'Search Property')
 @section('content')
+    <style>
+        /* Efek redup untuk property yang sudah terjual */
+        .property-sold {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .property-sold::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .property-sold:hover {
+            opacity: 0.7;
+        }
+
+        /* Alternatif: Efek grayscale */
+        .property-sold img {
+            filter: grayscale(50%);
+        }
+
+        .property-sold:hover img {
+            filter: grayscale(30%);
+        }
+    </style>
     <x-nav-property :about="$about" />
 
     <div class="site-section site-section-sm bg-light">
         <div class="container">
 
-            <div class="row mb-5">
+             <div class="row mb-5">
                 @forelse ($property as $properties)
                     <div class="col-md-6 col-lg-4 mb-4">
-                        <a href="{{ route('front.details', $properties->slug) }}" class="property-entry h-100 d-block">
+                        <a href="{{ route('front.details', $properties->slug) }}"
+                            class="property-entry h-100 d-block {{ $properties->status_terjual !== null ? 'property-sold' : '' }}">
                             <div class="property-thumbnail">
                                 <div class="offer-type-wrap">
-                                    @if ($properties->status_listing === 'For Rent')
-                                        <span class="offer-type bg-danger"> {{ $properties->status_listing }}</span>
-                                    @elseif($properties->status_listing === 'For Sale')
-                                        <span class="offer-type bg-success"> {{ $properties->status_listing }}</span>
+                                    @if ($properties->status_terjual !== null)
+                                        @if ($properties->status_listing === 'For Sale')
+                                            <span class="offer-type bg-danger">Sold</span>
+                                        @elseif ($properties->status_listing === 'For Rent')
+                                            <span class="offer-type bg-danger">Rented</span>
+                                        @else
+                                            <span class="offer-type bg-danger">Unavailable</span>
+                                        @endif
                                     @else
-                                        <span class="offer-type bg-secondary"> {{ $properties->status_listing }}</span>
+                                        @if ($properties->status_listing === 'For Rent')
+                                            <span class="offer-type bg-danger">{{ $properties->status_listing }}</span>
+                                        @elseif ($properties->status_listing === 'For Sale')
+                                            <span class="offer-type bg-success">{{ $properties->status_listing }}</span>
+                                        @else
+                                            <span class="offer-type bg-secondary">{{ $properties->status_listing }}</span>
+                                        @endif
                                     @endif
                                 </div>
                                 <img src="{{ Storage::url($properties->thumbnail ?? '') }}" alt="Image"
@@ -40,16 +83,15 @@
                                     </li>
                                     <li>
                                         <span class="property-specs">Bathroom</span>
-                                        <span class="property-specs"> {{ $properties->bathrooms ?? '0' }} </span>
+                                        <span class="property-specs">{{ $properties->bathrooms ?? '0' }}</span>
                                     </li>
-
                                     <li>
-                                        <span class="property-specs">Land Are</span>
-                                        <span class="property-specs"> {{ $properties->land_area ?? '0' }} </span>
+                                        <span class="property-specs">Land Area</span>
+                                        <span class="property-specs">{{ $properties->land_area ?? '0' }}</span>
                                     </li>
                                     <li>
                                         <span class="property-specs">Certificate</span>
-                                        <span class="property-specs"> {{ $properties->certificate ?? '-' }} </span>
+                                        <span class="property-specs">{{ $properties->certificate ?? '-' }}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -59,7 +101,7 @@
                     <div class="col-12">
                         <div class="text-center py-5">
                             <h4>No properties found</h4>
-                            <p class="text-muted">Try adjusting your search filters</p>
+                            <p class="text-muted">No active properties available at the moment</p>
                         </div>
                     </div>
                 @endforelse

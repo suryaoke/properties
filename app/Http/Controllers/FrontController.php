@@ -28,7 +28,7 @@ class FrontController extends Controller
         $this->propertyService = $propertyService;
     }
 
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $data = $this->propertyService->getCategoriesAndCities();
         $agen = User::role('agen')->limit(3)->get();
@@ -41,8 +41,19 @@ class FrontController extends Controller
         $query = Property::where('status_active', 'Active')
             ->where(function ($q) {
                 $q->whereNull('status_iklan')
-                ->orWhere('status_iklan', 'Active');
+                    ->orWhere('status_iklan', 'Active');
+            })
+            // Tambahkan kondisi untuk menyembunyikan properti terjual lebih dari 1 bulan
+            ->where(function ($q) {
+                $q->whereNull('status_terjual') // Status null tetap tampil
+                    ->orWhere('status_terjual', '!=', 'Terjual') // Status selain 'Terjual' tetap tampil
+                    ->orWhere(function ($subQ) {
+                        // Status 'Terjual' hanya tampil jika belum lebih dari 1 bulan
+                        $subQ->where('status_terjual', 'Terjual')
+                            ->where('tanggal_terjual', '>=', now()->subMonth());
+                    });
             });
+
         // Apply status filter if provided
         if ($statusFilter && in_array($statusFilter, ['Rent', 'Sale'])) {
             if ($statusFilter === 'Rent') {
@@ -52,16 +63,19 @@ class FrontController extends Controller
             }
         }
 
-        // Apply sorting based on price
+        // Apply sorting based on price or custom sort
         if ($sortBy && in_array($sortBy, ['price_asc', 'price_desc'])) {
             if ($sortBy === 'price_asc') {
-                $query->orderBy('price', 'asc');
+                $query->orderByRaw("CASE WHEN status_terjual = 'Terjual' THEN 1 ELSE 0 END")
+                    ->orderBy('price', 'asc');
             } elseif ($sortBy === 'price_desc') {
-                $query->orderBy('price', 'desc');
+                $query->orderByRaw("CASE WHEN status_terjual = 'Terjual' THEN 1 ELSE 0 END")
+                    ->orderBy('price', 'desc');
             }
         } else {
-            // Default sorting (latest first)
-            $query->latest();
+            // Default sorting: data terjual di akhir, lainnya (termasuk null) di awal berdasarkan created_at terbaru
+            $query->orderByRaw("CASE WHEN status_terjual = 'Terjual' THEN 1 ELSE 0 END")
+                ->orderBy('created_at', 'desc');
         }
 
         $propertie = $query->paginate(6);
@@ -73,13 +87,14 @@ class FrontController extends Controller
         $blog = Blog::latest()->paginate(3, ['*'], 'blog_page');
 
         $why = Why::all();
+
         return view('front.index', array_merge($data, [
             'agen' => $agen,
             'propertie' => $propertie,
             'blog' => $blog,
             'why' => $why,
-            'currentStatus' => $statusFilter, // Pass current filter to view
-            'currentSort' => $sortBy // Pass current sort to view
+            'currentStatus' => $statusFilter,
+            'currentSort' => $sortBy
         ]));
     }
     public function search(Request $request)

@@ -2,7 +2,38 @@
 @section('title', 'Detail Property')
 @section('content')
 
+    <style>
+        /* Efek redup untuk property yang sudah terjual */
+        .property-sold {
+            opacity: 0.6;
+            position: relative;
+        }
 
+        .property-sold::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .property-sold:hover {
+            opacity: 0.7;
+        }
+
+        /* Alternatif: Efek grayscale */
+        .property-sold img {
+            filter: grayscale(50%);
+        }
+
+        .property-sold:hover img {
+            filter: grayscale(30%);
+        }
+    </style>
     <x-nav-property :about="$about" />
 
     <div class="site-section site-section-sm">
@@ -26,14 +57,22 @@
                         <div class="row mb-2">
                             <div class="col-md-6">
                                 <div class="offer-type-wrap">
-                                    @if ($property->status_listing === 'For Rent')
-                                        <span class="offer-type bg-danger"> {{ $property->status_listing }}</span>
-                                    @elseif($property->status_listing === 'For Sale')
-                                        <span class="offer-type bg-success">
-                                            {{ $property->status_listing }}</span>
+                                   @if ($property->status_terjual !== null)
+                                        @if ($property->status_listing === 'For Sale')
+                                            <span class="offer-type bg-danger">Sold</span>
+                                        @elseif ($property->status_listing === 'For Rent')
+                                            <span class="offer-type bg-danger">Rented</span>
+                                        @else
+                                            <span class="offer-type bg-danger">Unavailable</span>
+                                        @endif
                                     @else
-                                        <span class="offer-type bg-secondary">
-                                            {{ $property->status_listing }}</span>
+                                        @if ($property->status_listing === 'For Rent')
+                                            <span class="offer-type bg-danger">{{ $property->status_listing }}</span>
+                                        @elseif ($property->status_listing === 'For Sale')
+                                            <span class="offer-type bg-success">{{ $property->status_listing }}</span>
+                                        @else
+                                            <span class="offer-type bg-secondary">{{ $property->status_listing }}</span>
+                                        @endif
                                     @endif
                                 </div>
                                 <strong class="h3 mb-3">
@@ -193,17 +232,25 @@
                 @forelse ($propertyRelated as $propertyRelateds)
                     <div class="col-md-6 col-lg-4 mb-4">
                         <a href="{{ route('front.details', $propertyRelateds->slug) }}"
-                            class="property-entry h-100 d-block">
+                            class="property-entry h-100 d-block {{ $propertyRelateds->status_terjual !== null ? 'property-sold' : '' }}">
                             <div class="property-thumbnail">
                                 <div class="offer-type-wrap">
-                                    @if ($propertyRelateds->status_listing === 'For Rent')
-                                        <span class="offer-type bg-danger"> {{ $propertyRelateds->status_listing }}</span>
-                                    @elseif($propertyRelateds->status_listing === 'For Sale')
-                                        <span class="offer-type bg-success">
-                                            {{ $propertyRelateds->status_listing }}</span>
+                                     @if ($propertyRelateds->status_terjual !== null)
+                                        @if ($propertyRelateds->status_listing === 'For Sale')
+                                            <span class="offer-type bg-danger">Sold</span>
+                                        @elseif ($propertyRelateds->status_listing === 'For Rent')
+                                            <span class="offer-type bg-danger">Rented</span>
+                                        @else
+                                            <span class="offer-type bg-danger">Unavailable</span>
+                                        @endif
                                     @else
-                                        <span class="offer-type bg-secondary">
-                                            {{ $propertyRelateds->status_listing }}</span>
+                                        @if ($propertyRelateds->status_listing === 'For Rent')
+                                            <span class="offer-type bg-danger">{{ $propertyRelateds->status_listing }}</span>
+                                        @elseif ($propertyRelateds->status_listing === 'For Sale')
+                                            <span class="offer-type bg-success">{{ $propertyRelateds->status_listing }}</span>
+                                        @else
+                                            <span class="offer-type bg-secondary">{{ $propertyRelateds->status_listing }}</span>
+                                        @endif
                                     @endif
                                 </div>
                                 <img src="{{ Storage::url($propertyRelateds->thumbnail ?? '') }}" alt="Image"

@@ -64,11 +64,11 @@
                                  <li><a href="{{ route('front.about') }}">About</a></li>
                                  <li><a href="{{ route('front.contact') }}">Contact</a></li>
                                  <li>
-                                    <a href="{{ route('front.iklan') }}">
-                                     <span
-                                         class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded btn-iklan">
-                                         Pasang Iklan
-                                     </span>
+                                     <a href="{{ route('front.iklan') }}">
+                                         <span
+                                             class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded btn-iklan">
+                                             Pasang Iklan
+                                         </span>
                                      </a>
                                  </li>
 
@@ -85,7 +85,7 @@
      <div class="slide-one-item home-slider owl-carousel">
 
          @php
-             $properties = App\Models\Property::where('status_active', 'Active')->limit('2')->get();
+             $properties = App\Models\Property::where('status_active', 'Active')->where('status_terjual', null)->limit('2')->get();
          @endphp
 
          @forelse ($properties as $propertie)
@@ -96,22 +96,42 @@
                  <div class="container">
                      <div class="row align-items-center justify-content-center text-center">
                          <div class="col-md-10">
-                             @if ($propertie->status_listing === 'For Rent')
-                                 <span
-                                     class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded">
-                                     {{ $propertie->status_listing }}
-                                 </span>
-                             @elseif($propertie->status_listing === 'For Sale')
-                                 <span
-                                     class="d-inline-block bg-success text-white px-3 mb-3 property-offer-type rounded">
-                                     {{ $propertie->status_listing }}
-                                 </span>
+                             @if ($propertie->status_terjual !== null)
+                                 @if ($propertie->status_listing === 'For Sale')
+                                     <span
+                                         class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded">
+                                         Sold
+                                     </span>
+                                 @elseif ($propertie->status_listing === 'For Rent')
+                                     <span
+                                         class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded">
+                                         Rented
+                                     </span>
+                                 @else
+                                     <span
+                                         class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded">
+                                         Unavailable
+                                     </span>
+                                 @endif
                              @else
-                                 <span
-                                     class="d-inline-block bg-secondary text-white px-3 mb-3 property-offer-type rounded">
-                                     {{ $propertie->status_listing }}
-                                 </span>
+                                 @if ($propertie->status_listing === 'For Rent')
+                                     <span
+                                         class="d-inline-block bg-danger text-white px-3 mb-3 property-offer-type rounded">
+                                         {{ $propertie->status_listing }}
+                                     </span>
+                                 @elseif ($propertie->status_listing === 'For Sale')
+                                     <span
+                                         class="d-inline-block bg-success text-white px-3 mb-3 property-offer-type rounded">
+                                         {{ $propertie->status_listing }}
+                                     </span>
+                                 @else
+                                     <span
+                                         class="d-inline-block bg-secondary text-white px-3 mb-3 property-offer-type rounded">
+                                         {{ $propertie->status_listing }}
+                                     </span>
+                                 @endif
                              @endif
+
 
                              <h1 class="mb-2">{{ $propertie->name }}</h1>
                              <p class="mb-5">
