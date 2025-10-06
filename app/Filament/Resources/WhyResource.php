@@ -89,6 +89,10 @@ class WhyResource extends Resource
             'edit' => Pages\EditWhy::route('/{record}/edit'),
         ];
     }
+     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->orderByDesc('created_at');
+    }
         public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->can('view_any_why');

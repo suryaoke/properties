@@ -226,7 +226,7 @@ class ArsipResource extends Resource
     }
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->whereNotNull('status_terjual');
+        return parent::getEloquentQuery()->whereNotNull('status_terjual')->orderByDesc('status_terjual');
     }
 
     public static function shouldRegisterNavigation(): bool

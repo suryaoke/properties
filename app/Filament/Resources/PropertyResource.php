@@ -293,7 +293,7 @@ class PropertyResource extends Resource
     }
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->whereNull('jenis')->whereNull('status_terjual');
+        return parent::getEloquentQuery()->whereNull('jenis')->whereNull('status_terjual')->orderByDesc('created_at');
     }
 
     public static function shouldRegisterNavigation(): bool

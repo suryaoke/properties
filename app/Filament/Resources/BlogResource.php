@@ -89,6 +89,11 @@ class BlogResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->orderByDesc('created_at');
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->can('view_any_blog');

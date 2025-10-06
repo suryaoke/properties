@@ -139,7 +139,7 @@ class UserResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])->orderByDesc('created_at');
     }
     public static function shouldRegisterNavigation(): bool
     {
