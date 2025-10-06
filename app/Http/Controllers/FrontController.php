@@ -28,7 +28,7 @@ class FrontController extends Controller
         $this->propertyService = $propertyService;
     }
 
-   public function index(Request $request)
+    public function index(Request $request)
     {
         $data = $this->propertyService->getCategoriesAndCities();
         $agen = User::role('agen')->limit(3)->get();
@@ -43,13 +43,18 @@ class FrontController extends Controller
                 $q->whereNull('status_iklan')
                     ->orWhere('status_iklan', 'Active');
             })
-            // Tambahkan kondisi untuk menyembunyikan properti terjual lebih dari 1 bulan
+            // Tambahkan kondisi untuk menyembunyikan properti Terjual / Tersewa lebih dari 1 bulan
             ->where(function ($q) {
                 $q->whereNull('status_terjual') // Status null tetap tampil
-                    ->orWhere('status_terjual', '!=', 'Terjual') // Status selain 'Terjual' tetap tampil
+                    ->orWhereNotIn('status_terjual', ['Terjual', 'Tersewa']) // Status lain tetap tampil
                     ->orWhere(function ($subQ) {
                         // Status 'Terjual' hanya tampil jika belum lebih dari 1 bulan
                         $subQ->where('status_terjual', 'Terjual')
+                            ->where('tanggal_terjual', '>=', now()->subMonth());
+                    })
+                    ->orWhere(function ($subQ) {
+                        // Status 'Tersewa' hanya tampil jika belum lebih dari 1 bulan
+                        $subQ->where('status_terjual', 'Tersewa')
                             ->where('tanggal_terjual', '>=', now()->subMonth());
                     });
             });
@@ -66,26 +71,22 @@ class FrontController extends Controller
         // Apply sorting based on price or custom sort
         if ($sortBy && in_array($sortBy, ['price_asc', 'price_desc'])) {
             if ($sortBy === 'price_asc') {
-                $query->orderByRaw("CASE WHEN status_terjual = 'Terjual' THEN 1 ELSE 0 END")
+                $query->orderByRaw("CASE WHEN status_terjual IN ('Terjual', 'Tersewa') THEN 1 ELSE 0 END")
                     ->orderBy('price', 'asc');
             } elseif ($sortBy === 'price_desc') {
-                $query->orderByRaw("CASE WHEN status_terjual = 'Terjual' THEN 1 ELSE 0 END")
+                $query->orderByRaw("CASE WHEN status_terjual IN ('Terjual', 'Tersewa') THEN 1 ELSE 0 END")
                     ->orderBy('price', 'desc');
             }
         } else {
-            // Default sorting: data terjual di akhir, lainnya (termasuk null) di awal berdasarkan created_at terbaru
-            $query->orderByRaw("CASE WHEN status_terjual = 'Terjual' THEN 1 ELSE 0 END")
+            // Default sorting: data Terjual/Tersewa di akhir, lainnya di awal
+            $query->orderByRaw("CASE WHEN status_terjual IN ('Terjual', 'Tersewa') THEN 1 ELSE 0 END")
                 ->orderBy('created_at', 'desc');
         }
 
         $propertie = $query->paginate(6);
-
-        // Preserve query parameters in pagination links
         $propertie->appends($request->query());
 
-        // Tambahkan pagination untuk blog dengan parameter berbeda
         $blog = Blog::latest()->paginate(3, ['*'], 'blog_page');
-
         $why = Why::all();
 
         return view('front.index', array_merge($data, [
@@ -97,6 +98,7 @@ class FrontController extends Controller
             'currentSort' => $sortBy
         ]));
     }
+
     public function search(Request $request)
     {
         $data = $this->propertyService->searchProperties($request->all());
@@ -459,8 +461,7 @@ class FrontController extends Controller
         $facilities = Facility::all();
         $about = About::first();
 
-        return view('front.iklan', compact('about','propertyTypes', 'categories', 'cities', 'facilities'));
-
+        return view('front.iklan', compact('about', 'propertyTypes', 'categories', 'cities', 'facilities'));
     }
 
     public function store(Request $request)
@@ -566,7 +567,6 @@ class FrontController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 'Iklan berhasil dibuat! Menunggu persetujuan admin.');
-
         } catch (\Exception $e) {
             DB::rollback();
 

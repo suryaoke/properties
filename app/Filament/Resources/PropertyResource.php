@@ -203,27 +203,65 @@ class PropertyResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\Action::make('markAsSold')
-                    ->label('Jual')
+                Tables\Actions\Action::make('markAsSoldOrRented')
+                    ->label(
+                        fn(Property $record) =>
+                        $record->status_listing === 'For Sale' ? 'Terjual' : ($record->status_listing === 'For Rent' ? 'Tersewa' : 'Selesai')
+                    )
                     ->icon('heroicon-o-check-circle')
-                    ->color('success')
+                    ->color(
+                        fn(Property $record) =>
+                        $record->status_listing === 'For Sale' ? 'success' : ($record->status_listing === 'For Rent' ? 'warning' : 'gray')
+                    )
                     ->requiresConfirmation()
-                    ->modalHeading('Tandai Sebagai Terjual')
-                    ->modalDescription('Apakah Anda yakin ingin menandai properti ini sebagai terjual?')
-                    ->modalSubmitActionLabel('Ya, Tandai Terjual')
-                    ->visible(fn(Property $record) => $record->status_terjual !== 'Terjual')
+                    ->modalHeading(
+                        fn(Property $record) =>
+                        $record->status_listing === 'For Sale'
+                            ? 'Tandai Sebagai Terjual'
+                            : 'Tandai Sebagai Tersewa'
+                    )
+                    ->modalDescription(
+                        fn(Property $record) =>
+                        $record->status_listing === 'For Sale'
+                            ? 'Apakah Anda yakin ingin menandai properti ini sebagai terjual?'
+                            : 'Apakah Anda yakin ingin menandai properti ini sebagai tersewa?'
+                    )
+                    ->modalSubmitActionLabel(
+                        fn(Property $record) =>
+                        $record->status_listing === 'For Sale'
+                            ? 'Ya, Tandai Terjual'
+                            : 'Ya, Tandai Tersewa'
+                    )
+                    ->visible(
+                        fn(Property $record) =>
+                        $record->status_listing === 'For Sale' || $record->status_listing === 'For Rent'
+                    )
                     ->action(function (Property $record) {
-                        $record->update([
-                            'status_terjual' => 'Terjual',
-                            'tanggal_terjual' => now(),
-                        ]);
+                        if ($record->status_listing === 'For Sale') {
+                            $record->update([
+                                'status_terjual' => 'Terjual',
+                                'tanggal_terjual' => now(),
+                            ]);
 
-                        Notification::make()
-                            ->title('Berhasil')
-                            ->body('Properti telah ditandai sebagai terjual.')
-                            ->success()
-                            ->send();
+                            Notification::make()
+                                ->title('Berhasil')
+                                ->body('Properti telah ditandai sebagai terjual.')
+                                ->success()
+                                ->send();
+                        } elseif ($record->status_listing === 'For Rent') {
+                            $record->update([
+                                'status_terjual' => 'Tersewa',
+                                'tanggal_terjual' => now(),
+                            ]);
+
+                            Notification::make()
+                                ->title('Berhasil')
+                                ->body('Properti telah ditandai sebagai tersewa.')
+                                ->success()
+                                ->send();
+                        }
                     }),
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
